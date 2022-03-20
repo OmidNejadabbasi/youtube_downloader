@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_downloader/shared/styles.dart';
 
-import '../../shared/my_flutter_app_icons.dart';
-import '../../shared/widgets/icon_button.dart';
+import '../../../shared/my_flutter_app_icons.dart';
+import '../../../shared/widgets/icon_button.dart';
 
 class YoutubeLinkExtractorDialog extends StatefulWidget {
   const YoutubeLinkExtractorDialog({

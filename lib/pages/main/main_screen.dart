@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_downloader/pages/main/link_extractor_dialog.dart';
+import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
 import 'package:youtube_downloader/shared/my_flutter_app_icons.dart';
 
 import '../../shared/styles.dart';
