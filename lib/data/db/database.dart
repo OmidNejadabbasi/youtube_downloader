@@ -15,7 +15,7 @@ class AppDatabase extends _$AppDatabase {
     return select(downloadItems).watch();
   }
 
-  Future<int> insertItems(DownloadItem item){
+  Future<int> insertItems(DownloadItemsCompanion item){
     return into(downloadItems).insert(item);
 
   }
