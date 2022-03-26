@@ -1,7 +1,7 @@
 
 abstract class LinkExtractorDialogEvent {}
 
-class ExtractLinkEvent {
+class ExtractLinkEvent extends LinkExtractorDialogEvent{
   final String link;
 
   ExtractLinkEvent(this.link);

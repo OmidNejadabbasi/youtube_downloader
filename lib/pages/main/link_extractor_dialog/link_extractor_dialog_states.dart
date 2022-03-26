@@ -1,4 +1,5 @@
 
+class IdleState{}
 
 class LinksListLoading {}
 

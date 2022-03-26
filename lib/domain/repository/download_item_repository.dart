@@ -9,7 +9,12 @@ class DownloadItemRepository {
     required this.db,
   });
 
-  Future<void> insertDownloadItemEntity(DownloadItemEntity entity) async{
+  Future<void> insertDownloadItemEntity(DownloadItemEntity entity) async {
     await db.insertItems(DownloadItemMapper.mapToDownloadItem(entity));
+  }
+
+  Stream<List<DownloadItemEntity>> getAllItemsStream() {
+    return db.getAllDownloadItems().map((event) =>
+        event.map((e) => DownloadItemMapper.mapToEntity(e)).toList());
   }
 }
