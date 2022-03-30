@@ -6,3 +6,5 @@ class ExtractLinkEvent extends LinkExtractorDialogEvent{
 
   ExtractLinkEvent(this.link);
 }
+
+class NoClipboardDataEvent extends LinkExtractorDialogEvent {}

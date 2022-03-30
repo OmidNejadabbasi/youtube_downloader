@@ -1,7 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/pages/main/main_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await init();
   runApp(const MyApp());
 }
 
@@ -19,4 +23,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
