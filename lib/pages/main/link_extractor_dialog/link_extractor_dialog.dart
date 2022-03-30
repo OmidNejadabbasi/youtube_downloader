@@ -4,9 +4,8 @@ import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_bloc.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_events.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_states.dart';
-import 'package:youtube_downloader/shared/styles.dart';
-
 import 'package:youtube_downloader/shared/my_flutter_app_icons.dart';
+import 'package:youtube_downloader/shared/styles.dart';
 import 'package:youtube_downloader/shared/widgets/icon_button.dart';
 
 class YoutubeLinkExtractorDialog extends StatefulWidget {
@@ -35,6 +34,7 @@ class _YoutubeLinkExtractorDialogState
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
       child: Container(
         padding: const EdgeInsets.only(left: 14, right: 14, top: 14, bottom: 4),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -76,27 +76,76 @@ class _YoutubeLinkExtractorDialogState
               labelStyle: Styles.labelTextStyle,
             ),
           ),
-          StreamBuilder(
-            stream: _bloc.dialogState,
-            builder: (context, snapshot) {
-              if (snapshot.data.runtimeType == LinksLoadedState) {
-                var state = snapshot.data as LinksLoadedState;
-                return Column(children: List.generate(state.links.length, (index) {
-                  return Row(
-                    children: [
-                      Radio(value: index, groupValue: selectedLinkInd, onChanged: (val) {
-                        if (val == null) return;
-                        selectedLinkInd = val as int;
-                      }),
-                      Text(state.links[index].title, maxLines: 1,overflow: TextOverflow.ellipsis,),
-                    ],
-                  );
-                }));
-              } else if (snapshot.data.runtimeType == LoadingUnsuccessful){
-                return Text("Error: ${(snapshot.data as LoadingUnsuccessful).e.toString()}");
-              }
-              return CircularProgressIndicator();
-            },
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(6),
+              child: StreamBuilder(
+                stream: _bloc.dialogState,
+                builder: (context, snapshot) {
+                  debugPrint(snapshot.data.runtimeType.toString());
+                  if (snapshot.data.runtimeType == LinksLoadedState) {
+                    var state = snapshot.data as LinksLoadedState;
+                    return Column(children: [
+                      Row(
+                        children: [
+                          Container(
+                            child: Image.network(
+                              state.videoMeta.thumbnails.mediumResUrl,
+                              height: 70,
+                              fit: BoxFit.cover,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(Radius.circular(3)),
+                              border: Border.all(color: Colors.grey,)
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    state.videoMeta.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      ...List.generate(state.links.length, (index) {
+                        return Row(
+                          children: [
+                            Radio(
+                                value: index,
+                                groupValue: selectedLinkInd,
+                                onChanged: (val) {
+                                  if (val == null) return;
+                                  selectedLinkInd = index;
+                                }),
+                            Expanded(
+                              child: Text(
+                                state.links[index].format.toUpperCase() + " " + state.links[index].fps,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        );
+                      })
+                    ]);
+                  } else if (snapshot.data.runtimeType == LoadingUnsuccessful) {
+                    return Text(
+                        "Error: ${(snapshot.data as LoadingUnsuccessful).e.toString()}");
+                  }
+                  return CircularProgressIndicator();
+                },
+              ),
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -123,6 +172,7 @@ class _YoutubeLinkExtractorDialogState
       ),
     );
   }
+
   @override
   void dispose() {
     super.dispose();

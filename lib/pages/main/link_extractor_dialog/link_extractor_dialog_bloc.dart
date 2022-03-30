@@ -67,6 +67,7 @@ class LinkExtractorDialogBloc {
             title: video.title,
           ));
         }
+        dialogState.add(LinksLoadedState(linksList, video));
       } catch (err) {
         dialogState.add(LoadingUnsuccessful(err as Error));
       }
