@@ -95,9 +95,11 @@ class _YoutubeLinkExtractorDialogState
                               fit: BoxFit.cover,
                             ),
                             decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(Radius.circular(3)),
-                              border: Border.all(color: Colors.grey,)
-                            ),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(3)),
+                                border: Border.all(
+                                  color: Colors.grey,
+                                )),
                           ),
                           Expanded(
                             child: Padding(
@@ -121,15 +123,18 @@ class _YoutubeLinkExtractorDialogState
                         return Row(
                           children: [
                             Radio(
-                                value: index,
-                                groupValue: selectedLinkInd,
-                                onChanged: (val) {
-                                  if (val == null) return;
-                                  selectedLinkInd = index;
-                                }),
+                              value: index,
+                              groupValue: selectedLinkInd,
+                              onChanged: (val) {
+                                if (val == null) return;
+                                selectedLinkInd = index;
+                              },
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                            ),
                             Expanded(
                               child: Text(
-                                state.links[index].format.toUpperCase() + " " + state.links[index].fps,
+                                '${state.links[index].format.toUpperCase()} ${state.links[index].quality} ${state.links[index].fps}',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -141,8 +146,12 @@ class _YoutubeLinkExtractorDialogState
                   } else if (snapshot.data.runtimeType == LoadingUnsuccessful) {
                     return Text(
                         "Error: ${(snapshot.data as LoadingUnsuccessful).e.toString()}");
+                  } else if (snapshot.data.runtimeType == LinksListLoading){
+                    return const Center(
+                      child:  CircularProgressIndicator(),
+                    );
                   }
-                  return CircularProgressIndicator();
+                  return const Text('Paste the link from clipboard');
                 },
               ),
             ),

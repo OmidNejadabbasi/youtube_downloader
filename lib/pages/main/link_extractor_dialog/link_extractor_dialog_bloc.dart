@@ -8,7 +8,7 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class LinkExtractorDialogBloc {
   final StreamController<LinkExtractorDialogEvent> _eventController =
-  StreamController();
+      StreamController();
 
   Sink<LinkExtractorDialogEvent> get eventSink => _eventController.sink;
 
@@ -55,6 +55,7 @@ class LinkExtractorDialogBloc {
             fps: item.framerate.toString(),
             format: item.container.toString(),
             title: video.title,
+            quality: item.videoQuality.toString().replaceAll(RegExp('[A-Za-z.]+'), '') + "p",
           ));
         }
         for (var item in manifest.video) {
@@ -65,6 +66,7 @@ class LinkExtractorDialogBloc {
             fps: item.framerate.toString(),
             format: item.container.toString(),
             title: video.title,
+            quality: item.videoQuality.toString().replaceAll(RegExp('[A-za-z.]'), '') + "p",
           ));
         }
         dialogState.add(LinksLoadedState(linksList, video));

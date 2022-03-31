@@ -8,6 +8,7 @@ class DownloadItemEntity {
   final String format;
   final String fps;
   final bool isAudio;
+  final String quality;
   final String thumbnailLink;
 
   DownloadItemEntity({
@@ -17,6 +18,7 @@ class DownloadItemEntity {
     required this.format,
     required this.fps,
     required this.isAudio,
+    required this.quality,
     required this.thumbnailLink,
   });
 }

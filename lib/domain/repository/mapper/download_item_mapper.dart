@@ -11,7 +11,7 @@ class DownloadItemMapper {
       fps: item.fps ?? '',
       isAudio: item.isAudio,
       thumbnailLink: item.thumbnailLink ?? "",
-      size: item.size,
+      size: item.size, quality: item.quality ?? '',
     );
   }
 
