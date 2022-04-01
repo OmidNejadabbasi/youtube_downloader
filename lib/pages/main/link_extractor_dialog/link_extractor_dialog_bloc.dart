@@ -41,10 +41,6 @@ class LinkExtractorDialogBloc {
         print('video data fetched');
         var manifest = await yt.videos.streamsClient.getManifest(videoId);
 
-        print(manifest.muxed);
-        print(manifest.video);
-        print(manifest.streams);
-
         // TODO extract download items
         List<DownloadItemEntity> linksList = [];
         for (var item in manifest.muxed) {

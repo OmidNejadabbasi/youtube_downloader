@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_downloader/dependency_container.dart';
+import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_bloc.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_events.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_states.dart';
@@ -24,6 +25,7 @@ class _YoutubeLinkExtractorDialogState
 
   late LinkExtractorDialogBloc _bloc;
   int selectedLinkInd = 0;
+  DownloadItemEntity? selectedItem;
 
   @override
   void initState() {
@@ -76,16 +78,17 @@ class _YoutubeLinkExtractorDialogState
               labelStyle: Styles.labelTextStyle,
             ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(6),
-              child: StreamBuilder(
-                stream: _bloc.dialogState,
-                builder: (context, snapshot) {
-                  debugPrint(snapshot.data.runtimeType.toString());
-                  if (snapshot.data.runtimeType == LinksLoadedState) {
-                    var state = snapshot.data as LinksLoadedState;
-                    return Column(children: [
+          StreamBuilder(
+            stream: _bloc.dialogState,
+            builder: (context, snapshot) {
+              debugPrint(snapshot.data.runtimeType.toString());
+              if (snapshot.data.runtimeType == LinksLoadedState) {
+                var state = snapshot.data as LinksLoadedState;
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(5),
+                    child: Column(children: [
                       Row(
                         children: [
                           Container(
@@ -128,6 +131,9 @@ class _YoutubeLinkExtractorDialogState
                               onChanged: (val) {
                                 if (val == null) return;
                                 selectedLinkInd = index;
+                                setState(() {
+                                  selectedItem = state.links[index];
+                                });
                               },
                               materialTapTargetSize:
                                   MaterialTapTargetSize.shrinkWrap,
@@ -142,19 +148,22 @@ class _YoutubeLinkExtractorDialogState
                           ],
                         );
                       })
-                    ]);
-                  } else if (snapshot.data.runtimeType == LoadingUnsuccessful) {
-                    return Text(
-                        "Error: ${(snapshot.data as LoadingUnsuccessful).e.toString()}");
-                  } else if (snapshot.data.runtimeType == LinksListLoading){
-                    return const Center(
-                      child:  CircularProgressIndicator(),
-                    );
-                  }
-                  return const Text('Paste the link from clipboard');
-                },
-              ),
-            ),
+                    ]),
+                  ),
+                );
+              } else if (snapshot.data.runtimeType == LoadingUnsuccessful) {
+                return Text(
+                    "Error: ${(snapshot.data as LoadingUnsuccessful).e.toString()}");
+              } else if (snapshot.data.runtimeType == LinksListLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Paste the link from clipboard'),
+              );
+            },
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -168,9 +177,13 @@ class _YoutubeLinkExtractorDialogState
                   style: Styles.labelTextStyle,
                 ),
               ),
-              const TextButton(
-                onPressed: null,
-                child: Text(
+              TextButton(
+                onPressed: selectedItem == null
+                    ? null
+                    : () {
+                        Navigator.pop(context, selectedItem);
+                      },
+                child: const Text(
                   'Start',
                   style: Styles.labelTextStyle,
                 ),
