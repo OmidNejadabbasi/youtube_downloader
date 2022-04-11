@@ -13,6 +13,7 @@ class DownloadItems extends Table {
   TextColumn get fps => text().nullable()();
   BoolColumn get isAudio => boolean()();
   TextColumn get quality => text().nullable()();
+  IntColumn get duration => integer().nullable()();
   TextColumn get thumbnailLink => text().nullable()();
 
 

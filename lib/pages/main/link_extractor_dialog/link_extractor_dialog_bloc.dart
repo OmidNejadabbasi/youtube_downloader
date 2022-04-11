@@ -51,6 +51,7 @@ class LinkExtractorDialogBloc {
             fps: item.framerate.toString(),
             format: item.container.toString(),
             title: video.title,
+            duration: video.duration?.inSeconds ?? 0,
             quality: item.videoQuality.toString().replaceAll(RegExp('[A-Za-z.]+'), '') + "p",
           ));
         }
@@ -62,6 +63,7 @@ class LinkExtractorDialogBloc {
             fps: item.framerate.toString(),
             format: item.container.toString(),
             title: video.title,
+            duration: video.duration?.inSeconds ?? 0,
             quality: item.videoQuality.toString().replaceAll(RegExp('[A-za-z.]'), '') + "p",
           ));
         }

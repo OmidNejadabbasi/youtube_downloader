@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
 import 'package:youtube_downloader/pages/main/main_screen_bloc.dart';
+import 'package:youtube_downloader/shared/widgets/download_item_list_tile.dart';
 
 import '../../shared/styles.dart';
 import '../../shared/widgets/icon_button.dart';
@@ -84,6 +85,13 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildMainList(BuildContext context, MainScreenState state) {
-    return Container();
+    return Expanded(
+      child: ListView.builder(
+        itemCount: state.observableItemList.length,
+        itemBuilder: (context, index) {
+          return DownloadItemListTile(downloadItem: state.observableItemList[index]);
+        },
+      ),
+    );
   }
 }
