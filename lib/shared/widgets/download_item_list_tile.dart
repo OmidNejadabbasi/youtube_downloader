@@ -18,6 +18,16 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 5,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
       child: Row(
         children: [
           Image.network(

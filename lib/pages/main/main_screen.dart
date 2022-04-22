@@ -20,10 +20,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
-
     super.initState();
     _bloc = sl<MainScreenBloc>();
-
   }
 
   @override
@@ -57,14 +55,43 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ],
               ),
-              StreamBuilder(
-                stream: _bloc.mainScreenState,
-                builder: (context, snapshot) {
-                  if (snapshot.data is MainScreenState) {
-                    return _buildMainList(context, snapshot.data! as MainScreenState);
-                  }
-                  return const Center(child: CircularProgressIndicator());
-                },
+              Expanded(
+                child: StreamBuilder(
+                  stream: _bloc.mainScreenState,
+                  builder: (context, snapshot) {
+                    if (snapshot.data is MainScreenState &&
+                        (snapshot.data as MainScreenState)
+                            .observableItemList
+                            .isNotEmpty) {
+                      print('some state');
+                      return _buildMainList(
+                          context, snapshot.data! as MainScreenState);
+                    }
+                    print('no state yet');
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/images/idea.png',
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.cover,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'No items to show!\nPress the add button to download new items',
+                          style: Styles.labelTextStyle.copyWith(
+                            color: Colors.grey,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 120,
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -89,7 +116,8 @@ class _MainScreenState extends State<MainScreen> {
       child: ListView.builder(
         itemCount: state.observableItemList.length,
         itemBuilder: (context, index) {
-          return DownloadItemListTile(downloadItem: state.observableItemList[index]);
+          return DownloadItemListTile(
+              downloadItem: state.observableItemList[index]);
         },
       ),
     );
