@@ -4,7 +4,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:youtube_downloader/dependency_container.dart';
+import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
+import 'package:youtube_downloader/pages/main/main_screeen_events.dart';
 import 'package:youtube_downloader/pages/main/main_screen_bloc.dart';
 import 'package:youtube_downloader/shared/widgets/download_item_list_tile.dart';
 
@@ -22,6 +24,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   late MainScreenBloc _bloc;
   ReceivePort _port = ReceivePort();
+  bool isStoragePermissionGranted = false;
 
   @override
   void initState() {
@@ -37,7 +40,20 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {});
     });
 
+    _bloc.mainScreenState.listen((event) {
+      if (event.runtimeType == PermissionNotGrantedState) {
+        setState(() {
+          isStoragePermissionGranted = false;
+        });
+      } else {
+        setState(() {
+          isStoragePermissionGranted = false;
+        });
+      }
+    });
+
     FlutterDownloader.registerCallback(downloadCallback);
+    _bloc.eventSink.add(CheckStoragePermission());
   }
 
   @pragma('vm:entry-point')
@@ -90,6 +106,9 @@ class _MainScreenState extends State<MainScreen> {
                       print('some state');
                       return _buildMainList(
                           context, snapshot.data! as MainScreenState);
+                    } else if (snapshot.data is PermissionNotGrantedState) {
+                      return _buildPermissionNotGrantedView(
+                          context, snapshot.data! as PermissionNotGrantedState);
                     }
                     print('no state yet');
                     return Column(
@@ -124,12 +143,15 @@ class _MainScreenState extends State<MainScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         backgroundColor: Styles.colorPrimary,
-        onPressed: () {
-          showDialog(
+        onPressed: () async {
+          DownloadItemEntity entity = await showDialog(
               context: context,
               builder: (context) {
                 return const YoutubeLinkExtractorDialog();
               });
+          if (entity != null) {
+            _bloc.eventSink.add(AddDownloadItemEvent(entity));
+          }
         },
       ),
     );
@@ -152,5 +174,24 @@ class _MainScreenState extends State<MainScreen> {
     IsolateNameServer.removePortNameMapping('downloader_send_port');
     _bloc.dispose();
     super.dispose();
+  }
+
+  Widget _buildPermissionNotGrantedView(BuildContext context,
+      PermissionNotGrantedState permissionNotGrantedState) {
+    return Container(
+      child: Center(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Permission not granted'),
+          SizedBox(height: 10),
+          ElevatedButton(
+            child: Text('Retry'),
+            onPressed: () async {
+              _bloc.eventSink.add(CheckStoragePermission());
+            },
+          ),
+        ],
+      )),
+    );
   }
 }

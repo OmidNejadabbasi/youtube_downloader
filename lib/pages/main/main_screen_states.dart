@@ -5,7 +5,12 @@ class MainScreenState {
 
   final List<BehaviorSubject<DownloadItemEntity>> observableItemList;
 
-  MainScreenState({required this.observableItemList});
+  MainScreenState({required this.observableItemList, });
 
 }
 
+class PermissionNotGrantedState {
+  final String message;
+
+  PermissionNotGrantedState({required this.message});
+}
