@@ -23,7 +23,6 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late MainScreenBloc _bloc;
-  ReceivePort _port = ReceivePort();
   bool isStoragePermissionGranted = false;
 
   @override
@@ -31,14 +30,6 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _bloc = sl<MainScreenBloc>();
 
-    IsolateNameServer.registerPortWithName(
-        _port.sendPort, 'downloader_send_port');
-    _port.listen((dynamic data) {
-      String id = data[0];
-      DownloadTaskStatus status = data[1];
-      int progress = data[2];
-      setState(() {});
-    });
 
     _bloc.mainScreenState.listen((event) {
       if (event.runtimeType == PermissionNotGrantedState) {
@@ -52,17 +43,9 @@ class _MainScreenState extends State<MainScreen> {
       }
     });
 
-    FlutterDownloader.registerCallback(downloadCallback);
     _bloc.eventSink.add(CheckStoragePermission());
   }
 
-  @pragma('vm:entry-point')
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) {
-    final SendPort send =
-        IsolateNameServer.lookupPortByName('downloader_send_port')!;
-    send.send([id, status, progress]);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +154,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
-    IsolateNameServer.removePortNameMapping('downloader_send_port');
     _bloc.dispose();
     super.dispose();
   }

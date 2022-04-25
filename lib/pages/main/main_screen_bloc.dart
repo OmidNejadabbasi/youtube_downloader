@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
@@ -17,6 +20,7 @@ class MainScreenBloc {
   late List<BehaviorSubject<DownloadItemEntity>> observableItemList;
   bool _permissionReady = false;
   late String _localPath;
+  ReceivePort _port = ReceivePort();
 
   MainScreenBloc(DownloadItemRepository repository) {
     _repository = repository;
@@ -32,8 +36,21 @@ class MainScreenBloc {
     _mainScreenEvents.stream.listen((event) async {
       if (event.runtimeType == CheckStoragePermission) {
         await _prepare();
+      } else if (event.runtimeType == AddDownloadItemEvent) {
+        final evt = event as AddDownloadItemEvent;
+        var taskId = FlutterDownloader.enqueue(url: evt.entity.link, savedDir: _localPath,fileName: evt.entity.title+'.mp4');
+        // TODO : add to repository
       }
     });
+    IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
   }
 
   final _mainScreenStateSubject = BehaviorSubject();
@@ -42,6 +59,16 @@ class MainScreenBloc {
   Sink get eventSink => _mainScreenEvents.sink;
 
   Stream get mainScreenState => _mainScreenStateSubject.stream;
+
+
+  @pragma('vm:entry-point')
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort send =
+    IsolateNameServer.lookupPortByName('downloader_send_port')!;
+    send.send([id, status, progress]);
+  }
+
 
   Future<void> _prepare() async {
     _permissionReady = await _checkPermission();
@@ -111,5 +138,6 @@ class MainScreenBloc {
 
   void dispose() {
     _mainScreenStateSubject.close();
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
   }
 }
