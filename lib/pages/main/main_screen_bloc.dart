@@ -38,8 +38,8 @@ class MainScreenBloc {
         await _prepare();
       } else if (event.runtimeType == AddDownloadItemEvent) {
         final evt = event as AddDownloadItemEvent;
-        var taskId = FlutterDownloader.enqueue(url: evt.entity.link, savedDir: _localPath,fileName: evt.entity.title+'.mp4');
-        // TODO : add to repository
+        var taskId = await FlutterDownloader.enqueue(url: evt.entity.link, savedDir: _localPath,fileName: evt.entity.title+'.mp4');
+        _repository.insertDownloadItemEntity(evt.entity.copyWith(taskId: taskId));
       }
     });
     IsolateNameServer.registerPortWithName(

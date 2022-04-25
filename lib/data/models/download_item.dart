@@ -15,6 +15,8 @@ class DownloadItems extends Table {
   TextColumn get quality => text().nullable()();
   IntColumn get duration => integer().nullable()();
   TextColumn get thumbnailLink => text().nullable()();
+  TextColumn get taskId => text()();
+  TextColumn get status => text()();
 
 
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_events.dart';
@@ -53,6 +54,8 @@ class LinkExtractorDialogBloc {
             title: video.title,
             duration: video.duration?.inSeconds ?? 0,
             quality: item.videoQuality.toString().replaceAll(RegExp('[A-Za-z.]+'), '') + "p",
+            taskId: '',
+            status: DownloadTaskStatus.undefined.toString(),
           ));
         }
         for (var item in manifest.video) {
@@ -65,6 +68,8 @@ class LinkExtractorDialogBloc {
             title: video.title,
             duration: video.duration?.inSeconds ?? 0,
             quality: item.videoQuality.toString().replaceAll(RegExp('[A-za-z.]'), '') + "p",
+            taskId: '',
+            status: DownloadTaskStatus.undefined.toString(),
           ));
         }
         dialogState.add(LinksLoadedState(linksList, video));
