@@ -10,11 +10,11 @@ class DownloadItemMapper {
       format: item.format ?? '',
       fps: item.fps ?? '',
       isAudio: item.isAudio,
-      thumbnailLink: item.thumbnailLink ?? "",
+      thumbnailLink: item.thumbnail_link ?? "",
       duration: item.duration ?? 0,
       size: item.size,
       quality: item.quality ?? '',
-      taskId: item.taskId,
+      taskId: item.task_id,
       status: item.status,
     );
   }
@@ -23,14 +23,14 @@ class DownloadItemMapper {
     return DownloadItemsCompanion(
       link: Value(item.link),
       title: Value(item.title),
-      format: Value(item.format ?? ''),
-      fps: Value(item.fps ?? ''),
+      format: Value(item.format),
+      fps: Value(item.fps),
       isAudio: Value(item.isAudio),
-      thumbnailLink: Value(item.thumbnailLink ?? ""),
-      duration: Value(item.duration ?? 0),
+      thumbnail_link: Value(item.thumbnailLink),
+      duration: Value(item.duration),
       size: Value(item.size),
-      quality: Value(item.quality ?? ''),
-      taskId: Value(item.taskId),
+      quality: Value(item.quality),
+      task_id: Value(item.taskId),
       status: Value(item.status),
     );
   }

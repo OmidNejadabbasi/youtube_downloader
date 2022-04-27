@@ -127,13 +127,13 @@ class _MainScreenState extends State<MainScreen> {
         child: Icon(Icons.add),
         backgroundColor: Styles.colorPrimary,
         onPressed: () async {
-          DownloadItemEntity entity = await showDialog(
+          var entity = await showDialog(
               context: context,
               builder: (context) {
                 return const YoutubeLinkExtractorDialog();
               });
-          if (entity != null) {
-            _bloc.eventSink.add(AddDownloadItemEvent(entity));
+          if (entity.runtimeType != Null) {
+          _bloc.eventSink.add(AddDownloadItemEvent(entity as DownloadItemEntity));
           }
         },
       ),
@@ -141,14 +141,12 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildMainList(BuildContext context, MainScreenState state) {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: state.observableItemList.length,
-        itemBuilder: (context, index) {
-          return DownloadItemListTile(
-              downloadItem: state.observableItemList[index]);
-        },
-      ),
+    return ListView.builder(
+      itemCount: state.observableItemList.length,
+      itemBuilder: (context, index) {
+        return DownloadItemListTile(
+            downloadItem: state.observableItemList[index]);
+      },
     );
   }
 
@@ -164,10 +162,10 @@ class _MainScreenState extends State<MainScreen> {
       child: Center(child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Permission not granted'),
-          SizedBox(height: 10),
+          const Text('Permission not granted'),
+          const SizedBox(height: 10),
           ElevatedButton(
-            child: Text('Retry'),
+            child: const Text('Retry'),
             onPressed: () async {
               _bloc.eventSink.add(CheckStoragePermission());
             },

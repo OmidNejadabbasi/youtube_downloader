@@ -14,8 +14,8 @@ class DownloadItems extends Table {
   BoolColumn get isAudio => boolean()();
   TextColumn get quality => text().nullable()();
   IntColumn get duration => integer().nullable()();
-  TextColumn get thumbnailLink => text().nullable()();
-  TextColumn get taskId => text()();
+  TextColumn get thumbnail_link => text().nullable()();
+  TextColumn get task_id => text()();
   TextColumn get status => text()();
 
 

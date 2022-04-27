@@ -13,7 +13,17 @@ class DownloadItemListTile extends StatefulWidget {
 }
 
 class _DownloadItemListTileState extends State<DownloadItemListTile> {
-  late DownloadItemEntity item;
+  DownloadItemEntity? item;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.downloadItem.listen((value) {
+      setState(() {
+        item = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +41,7 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
       child: Row(
         children: [
           Image.network(
-            item.thumbnailLink,
+            item?.thumbnailLink ?? 'https://via.placeholder.com/150',
             height: 96,
             width: 128,
             fit: BoxFit.cover,
@@ -43,11 +53,11 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item.title,
+                    item?.title ?? '(...)',
                     style: TextStyle(fontSize: 18),
                   ),
                   Text(
-                    item.title,
+                    item?.quality ?? '(...)',
                     style: TextStyle(fontSize: 14),
                   ),
                 ],

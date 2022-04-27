@@ -25,6 +25,7 @@ class MainScreenBloc {
   MainScreenBloc(DownloadItemRepository repository) {
     _repository = repository;
     _repository.getAllItemsStream().listen((event) {
+      print('Download list updated');
       observableItemList = event.map((e) => BehaviorSubject.seeded(e)).toList();
       _mainScreenStateSubject.add(
         MainScreenState(
