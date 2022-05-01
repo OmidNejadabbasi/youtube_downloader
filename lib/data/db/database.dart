@@ -25,6 +25,9 @@ class AppDatabase extends _$AppDatabase {
     return into(downloadItems).insert(item);
 
   }
+  Future<void> updateDownloadItem(DownloadItemsCompanion item){
+    return update(downloadItems).replace(item);
+  }
 
 }
 LazyDatabase _openConnection() {

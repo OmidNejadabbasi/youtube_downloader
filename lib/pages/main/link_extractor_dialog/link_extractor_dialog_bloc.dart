@@ -38,7 +38,10 @@ class LinkExtractorDialogBloc {
 
         print('vidoe id found : ${videoId.value}');
 
-        Video video = await yt.videos.get(videoId);
+        Video video = await yt.videos.get(videoId).timeout(const Duration(seconds: 15), onTimeout: () {
+          dialogState.add(LoadingUnsuccessful(Error()));
+          throw Error();
+        });
         print('video data fetched');
         var manifest = await yt.videos.streamsClient.getManifest(videoId);
 

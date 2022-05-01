@@ -17,7 +17,7 @@ import 'main_screen_states.dart';
 
 class MainScreenBloc {
   late DownloadItemRepository _repository;
-  late List<BehaviorSubject<DownloadItemEntity>> observableItemList;
+  List<BehaviorSubject<DownloadItemEntity>> observableItemList = [];
   bool _permissionReady = false;
   late String _localPath;
   ReceivePort _port = ReceivePort();
@@ -29,8 +29,7 @@ class MainScreenBloc {
       observableItemList = event.map((e) => BehaviorSubject.seeded(e)).toList();
       _mainScreenStateSubject.add(
         MainScreenState(
-          observableItemList:
-              event.map((e) => BehaviorSubject.seeded(e)).toList(),
+          observableItemList: observableItemList,
         ),
       );
     });
@@ -39,8 +38,12 @@ class MainScreenBloc {
         await _prepare();
       } else if (event.runtimeType == AddDownloadItemEvent) {
         final evt = event as AddDownloadItemEvent;
-        var taskId = await FlutterDownloader.enqueue(url: evt.entity.link, savedDir: _localPath,fileName: evt.entity.title+'.mp4');
-        _repository.insertDownloadItemEntity(evt.entity.copyWith(taskId: taskId));
+        var taskId = await FlutterDownloader.enqueue(
+            url: evt.entity.link,
+            savedDir: _localPath,
+            fileName: evt.entity.title + '.mp4');
+        _repository
+            .insertDownloadItemEntity(evt.entity.copyWith(taskId: taskId));
       }
     });
     IsolateNameServer.registerPortWithName(
@@ -49,6 +52,16 @@ class MainScreenBloc {
       String id = data[0];
       DownloadTaskStatus status = data[1];
       int progress = data[2];
+      var item = observableItemList
+          .where((element) => element.value.taskId == id)
+          .toList()[0];
+      item.add(
+        item.value.copyWith(
+          status: status.toString(),
+          downloaded: progress,
+        ),
+      );
+      _repository.updateDownloadItemEntity(item.value);
     });
 
     FlutterDownloader.registerCallback(downloadCallback);
@@ -61,15 +74,13 @@ class MainScreenBloc {
 
   Stream get mainScreenState => _mainScreenStateSubject.stream;
 
-
   @pragma('vm:entry-point')
   static void downloadCallback(
       String id, DownloadTaskStatus status, int progress) {
     final SendPort send =
-    IsolateNameServer.lookupPortByName('downloader_send_port')!;
+        IsolateNameServer.lookupPortByName('downloader_send_port')!;
     send.send([id, status, progress]);
   }
-
 
   Future<void> _prepare() async {
     _permissionReady = await _checkPermission();
@@ -95,7 +106,7 @@ class MainScreenBloc {
       final status = await Permission.storage.status;
       if (status != PermissionStatus.granted) {
         final result = await Permission.storage.request();
-        print("Permission result   "+result.toString());
+        print("Permission result   " + result.toString());
         if (result == PermissionStatus.granted) {
           return true;
         }
@@ -113,10 +124,10 @@ class MainScreenBloc {
     final savedDir = Directory(_localPath);
     bool hasExisted = await savedDir.exists();
     if (!hasExisted) {
-      try{
+      try {
         await savedDir.create(recursive: true);
       } catch (e) {
-        print("Error creating directory: "+e.toString());
+        print("Error creating directory: " + e.toString());
       }
     }
   }
@@ -140,5 +151,20 @@ class MainScreenBloc {
   void dispose() {
     _mainScreenStateSubject.close();
     IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  void onItemPauseClicked(String taskId) {
+    FlutterDownloader.pause(taskId: taskId);
+  }
+
+  void onItemResumeClicked(String taskId) {
+    FlutterDownloader.resume(taskId: taskId);
+  }
+  void onItemRemoveClicked(String taskId) {
+    FlutterDownloader.remove(taskId: taskId);
+  }
+
+  void onItemRetryClicked(String taskId) {
+    FlutterDownloader.retry(taskId: taskId);
   }
 }

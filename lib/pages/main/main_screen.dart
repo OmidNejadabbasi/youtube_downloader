@@ -1,8 +1,6 @@
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
@@ -30,7 +28,6 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _bloc = sl<MainScreenBloc>();
 
-
     _bloc.mainScreenState.listen((event) {
       if (event.runtimeType == PermissionNotGrantedState) {
         setState(() {
@@ -46,77 +43,92 @@ class _MainScreenState extends State<MainScreen> {
     _bloc.eventSink.add(CheckStoragePermission());
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 252, 252, 252),
       body: SafeArea(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
-          decoration: BoxDecoration(color: Colors.white, boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 3),
-          ]),
+          decoration: const BoxDecoration(
+            boxShadow: [
+              BoxShadow(color: Colors.black12, blurRadius: 3),
+            ],
+          ),
           child: Column(
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  NIconButton(
-                    icon: Icons.menu,
-                    onPressed: () {},
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Youtube Downloader',
-                      textAlign: TextAlign.center,
-                      style: Styles.appTitleStyle,
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black12, blurRadius: 3),
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    NIconButton(
+                      icon: Icons.menu,
+                      onPressed: () {},
                     ),
-                  ),
-                  NIconButton(
-                    icon: Icons.search,
-                    onPressed: () {},
-                  ),
-                ],
+                    const Expanded(
+                      child: Text(
+                        'Youtube Downloader',
+                        textAlign: TextAlign.center,
+                        style: Styles.appTitleStyle,
+                      ),
+                    ),
+                    NIconButton(
+                      icon: Icons.search,
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
               ),
+              SizedBox(height: 10),
               Expanded(
-                child: StreamBuilder(
-                  stream: _bloc.mainScreenState,
-                  builder: (context, snapshot) {
-                    if (snapshot.data is MainScreenState &&
-                        (snapshot.data as MainScreenState)
-                            .observableItemList
-                            .isNotEmpty) {
-                      print('some state');
-                      return _buildMainList(
-                          context, snapshot.data! as MainScreenState);
-                    } else if (snapshot.data is PermissionNotGrantedState) {
-                      return _buildPermissionNotGrantedView(
-                          context, snapshot.data! as PermissionNotGrantedState);
-                    }
-                    print('no state yet');
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/images/idea.png',
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.cover,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'No items to show!\nPress the add button to download new items',
-                          style: Styles.labelTextStyle.copyWith(
-                            color: Colors.grey,
+                child: Container(
+                  color: Colors.white38,
+                  child: StreamBuilder(
+                    stream: _bloc.mainScreenState,
+                    builder: (context, snapshot) {
+                      if (snapshot.data is MainScreenState &&
+                          (snapshot.data as MainScreenState)
+                              .observableItemList
+                              .isNotEmpty) {
+                        print('some state');
+                        return _buildMainList(
+                            context, snapshot.data! as MainScreenState);
+                      } else if (snapshot.data is PermissionNotGrantedState) {
+                        return _buildPermissionNotGrantedView(context,
+                            snapshot.data! as PermissionNotGrantedState);
+                      }
+                      print('no state yet');
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/idea.png',
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(
-                          height: 120,
-                        ),
-                      ],
-                    );
-                  },
+                          const SizedBox(height: 10),
+                          Text(
+                            'No items to show!\nPress the add button to download new items',
+                            style: Styles.labelTextStyle.copyWith(
+                              color: Colors.grey,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(
+                            height: 120,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -133,7 +145,8 @@ class _MainScreenState extends State<MainScreen> {
                 return const YoutubeLinkExtractorDialog();
               });
           if (entity.runtimeType != Null) {
-          _bloc.eventSink.add(AddDownloadItemEvent(entity as DownloadItemEntity));
+            _bloc.eventSink
+                .add(AddDownloadItemEvent(entity as DownloadItemEntity));
           }
         },
       ),
@@ -145,7 +158,11 @@ class _MainScreenState extends State<MainScreen> {
       itemCount: state.observableItemList.length,
       itemBuilder: (context, index) {
         return DownloadItemListTile(
-            downloadItem: state.observableItemList[index]);
+          downloadItem: state.observableItemList[index],
+          onPause: _bloc.onItemPauseClicked,
+          onResume: _bloc.onItemResumeClicked,
+          onRetry: _bloc.onItemRetryClicked,
+        );
       },
     );
   }
@@ -159,7 +176,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildPermissionNotGrantedView(BuildContext context,
       PermissionNotGrantedState permissionNotGrantedState) {
     return Container(
-      child: Center(child: Column(
+      child: Center(
+          child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text('Permission not granted'),

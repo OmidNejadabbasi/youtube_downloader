@@ -13,8 +13,16 @@ class DownloadItemRepository {
     await db.insertItems(DownloadItemMapper.mapToDownloadItem(entity));
   }
 
+  Future<void> updateEntity(DownloadItemEntity entity) async{
+
+  }
+
   Stream<List<DownloadItemEntity>> getAllItemsStream() {
     return db.getAllDownloadItems().map((event) =>
         event.map((e) => DownloadItemMapper.mapToEntity(e)).toList());
+  }
+
+  void updateDownloadItemEntity(DownloadItemEntity value) {
+    db.updateDownloadItem(DownloadItemMapper.mapToDownloadItem(value));
   }
 }

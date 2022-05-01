@@ -5,19 +5,21 @@ class DownloadItemEntity {
   final String link;
   final String title;
   int size;
+  int downloaded;
   final String format;
   final String fps;
   final bool isAudio;
   final String quality;
   final int duration;
   final String thumbnailLink;
-  final String taskId;
-  final String status;
+  final String? taskId;
+  final String? status;
 
   DownloadItemEntity({
     required this.link,
     required this.title,
     this.size = -1,
+    this.downloaded = 0,
     required this.format,
     required this.fps,
     required this.isAudio,
@@ -32,6 +34,7 @@ class DownloadItemEntity {
     String? link,
     String? title,
     int? size,
+    int? downloaded,
     String? format,
     String? fps,
     bool? isAudio,
@@ -45,6 +48,7 @@ class DownloadItemEntity {
       link: link ?? this.link,
       title: title ?? this.title,
       size: size ?? this.size,
+      downloaded: downloaded ?? this.downloaded,
       format: format ?? this.format,
       fps: fps ?? this.fps,
       isAudio: isAudio ?? this.isAudio,
