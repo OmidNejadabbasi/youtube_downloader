@@ -2,6 +2,7 @@
 
 class DownloadItemEntity {
 
+  final int? id;
   final String link;
   final String title;
   int size;
@@ -13,9 +14,10 @@ class DownloadItemEntity {
   final int duration;
   final String thumbnailLink;
   final String? taskId;
-  final String? status;
+  final int? status;
 
   DownloadItemEntity({
+    this.id,
     required this.link,
     required this.title,
     this.size = -1,
@@ -31,6 +33,7 @@ class DownloadItemEntity {
   });
 
   DownloadItemEntity copyWith({
+    int? id,
     String? link,
     String? title,
     int? size,
@@ -42,9 +45,10 @@ class DownloadItemEntity {
     int? duration,
     String? thumbnailLink,
     String? taskId,
-    String? status,
+    int? status,
   }) {
     return DownloadItemEntity(
+      id: id ?? this.id,
       link: link ?? this.link,
       title: title ?? this.title,
       size: size ?? this.size,

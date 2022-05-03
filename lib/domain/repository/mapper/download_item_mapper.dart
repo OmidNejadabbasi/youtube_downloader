@@ -5,6 +5,7 @@ import 'package:youtube_downloader/domain/entities/download_item.dart';
 class DownloadItemMapper {
   static DownloadItemEntity mapToEntity(DownloadItem item) {
     return DownloadItemEntity(
+      id: item.id,
       link: item.link,
       title: item.title,
       format: item.format ?? '',
@@ -22,6 +23,7 @@ class DownloadItemMapper {
 
   static DownloadItemsCompanion mapToDownloadItem(DownloadItemEntity item) {
     return DownloadItemsCompanion(
+      id: item.id == null ? const Value.absent() : Value(item.id!),
       link: Value(item.link),
       title: Value(item.title),
       format: Value(item.format),

@@ -26,6 +26,7 @@ class MainScreenBloc {
     _repository = repository;
     _repository.getAllItemsStream().listen((event) {
       print('Download list updated');
+      print(event.map((e) => e.id).toList());
       observableItemList = event.map((e) => BehaviorSubject.seeded(e)).toList();
       _mainScreenStateSubject.add(
         MainScreenState(
@@ -38,11 +39,17 @@ class MainScreenBloc {
         await _prepare();
       } else if (event.runtimeType == AddDownloadItemEvent) {
         final evt = event as AddDownloadItemEvent;
+
+        String fileName = evt.entity.title+"-"+ evt.entity.fps + 'p.mp4';
+        int counter = 1;
+        while(File(_localPath +"/"+ fileName ).existsSync()){
+          fileName = evt.entity.title+"-"+ evt.entity.fps + '($counter).mp4';
+        }
         var taskId = await FlutterDownloader.enqueue(
             url: evt.entity.link,
             savedDir: _localPath,
-            fileName: evt.entity.title + '.mp4');
-        _repository
+            fileName: fileName,);
+        await _repository
             .insertDownloadItemEntity(evt.entity.copyWith(taskId: taskId));
       }
     });
@@ -55,9 +62,11 @@ class MainScreenBloc {
       var item = observableItemList
           .where((element) => element.value.taskId == id)
           .toList()[0];
+      print('update triggered');
       item.add(
         item.value.copyWith(
-          status: status.toString(),
+          taskId: id,
+          status: status.value,
           downloaded: progress,
         ),
       );

@@ -58,7 +58,7 @@ class LinkExtractorDialogBloc {
             duration: video.duration?.inSeconds ?? 0,
             quality: item.videoQuality.toString().replaceAll(RegExp('[A-Za-z.]+'), '') + "p",
             taskId: '',
-            status: DownloadTaskStatus.undefined.toString(),
+            status: DownloadTaskStatus.undefined.value,
           ));
         }
         for (var item in manifest.video) {
@@ -72,7 +72,7 @@ class LinkExtractorDialogBloc {
             duration: video.duration?.inSeconds ?? 0,
             quality: item.videoQuality.toString().replaceAll(RegExp('[A-za-z.]'), '') + "p",
             taskId: '',
-            status: DownloadTaskStatus.undefined.toString(),
+            status: DownloadTaskStatus.undefined.value,
           ));
         }
         dialogState.add(LinksLoadedState(linksList, video));

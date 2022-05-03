@@ -20,7 +20,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
   final int? duration;
   final String? thumbnail_link;
   final String? task_id;
-  final String? status;
+  final int? status;
   DownloadItem(
       {required this.id,
       required this.link,
@@ -62,7 +62,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           .mapFromDatabaseResponse(data['${effectivePrefix}thumbnail_link']),
       task_id: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}task_id']),
-      status: const StringType()
+      status: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}status']),
     );
   }
@@ -94,7 +94,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       map['task_id'] = Variable<String?>(task_id);
     }
     if (!nullToAbsent || status != null) {
-      map['status'] = Variable<String?>(status);
+      map['status'] = Variable<int?>(status);
     }
     return map;
   }
@@ -143,7 +143,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       duration: serializer.fromJson<int?>(json['duration']),
       thumbnail_link: serializer.fromJson<String?>(json['thumbnail_link']),
       task_id: serializer.fromJson<String?>(json['task_id']),
-      status: serializer.fromJson<String?>(json['status']),
+      status: serializer.fromJson<int?>(json['status']),
     );
   }
   @override
@@ -162,7 +162,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       'duration': serializer.toJson<int?>(duration),
       'thumbnail_link': serializer.toJson<String?>(thumbnail_link),
       'task_id': serializer.toJson<String?>(task_id),
-      'status': serializer.toJson<String?>(status),
+      'status': serializer.toJson<int?>(status),
     };
   }
 
@@ -179,7 +179,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           int? duration,
           String? thumbnail_link,
           String? task_id,
-          String? status}) =>
+          int? status}) =>
       DownloadItem(
         id: id ?? this.id,
         link: link ?? this.link,
@@ -250,7 +250,7 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
   final Value<int?> duration;
   final Value<String?> thumbnail_link;
   final Value<String?> task_id;
-  final Value<String?> status;
+  final Value<int?> status;
   const DownloadItemsCompanion({
     this.id = const Value.absent(),
     this.link = const Value.absent(),
@@ -296,7 +296,7 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
     Expression<int?>? duration,
     Expression<String?>? thumbnail_link,
     Expression<String?>? task_id,
-    Expression<String?>? status,
+    Expression<int?>? status,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -328,7 +328,7 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
       Value<int?>? duration,
       Value<String?>? thumbnail_link,
       Value<String?>? task_id,
-      Value<String?>? status}) {
+      Value<int?>? status}) {
     return DownloadItemsCompanion(
       id: id ?? this.id,
       link: link ?? this.link,
@@ -386,7 +386,7 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
       map['task_id'] = Variable<String?>(task_id.value);
     }
     if (status.present) {
-      map['status'] = Variable<String?>(status.value);
+      map['status'] = Variable<int?>(status.value);
     }
     return map;
   }
@@ -489,9 +489,9 @@ class $DownloadItemsTable extends DownloadItems
       type: const StringType(), requiredDuringInsert: false);
   final VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
-  late final GeneratedColumn<String?> status = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> status = GeneratedColumn<int?>(
       'status', aliasedName, true,
-      type: const StringType(), requiredDuringInsert: false);
+      type: const IntType(), requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,

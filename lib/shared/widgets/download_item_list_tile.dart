@@ -85,20 +85,27 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: item?.status ==
-                                  DownloadTaskStatus.paused.toString()
+                                  DownloadTaskStatus.paused.value
                               ? const Icon(Icons.play_arrow)
-                              : const Icon(Icons.pause),
+                              : item?.status ==
+                                      DownloadTaskStatus.complete.value
+                                  ? const Icon(Icons.check)
+                                  : item?.status ==
+                                          DownloadTaskStatus.failed.value
+                                      ? const Icon(Icons.restart_alt)
+                                      : const Icon(Icons.pause),
                         ),
                         onTap: () {
                           if (item?.status == null) return;
                           if (item?.status ==
-                              DownloadTaskStatus.paused.toString()) {
+                              DownloadTaskStatus.paused.value) {
                             widget.onPause(item!.taskId!);
                           } else if (item?.status ==
-                              DownloadTaskStatus.running.toString()) {
+                              DownloadTaskStatus.running.value) {
                             widget.onResume(item!.taskId!);
                           } else if (item?.status ==
-                              DownloadTaskStatus.canceled.toString()) {
+                              DownloadTaskStatus.canceled.value || item?.status ==
+                              DownloadTaskStatus.failed.value) {
                             widget.onRetry(item!.taskId!);
                           }
                         },

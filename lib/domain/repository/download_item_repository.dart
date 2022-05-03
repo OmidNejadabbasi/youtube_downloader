@@ -9,8 +9,8 @@ class DownloadItemRepository {
     required this.db,
   });
 
-  Future<void> insertDownloadItemEntity(DownloadItemEntity entity) async {
-    await db.insertItems(DownloadItemMapper.mapToDownloadItem(entity));
+  Future<int> insertDownloadItemEntity(DownloadItemEntity entity) async {
+    return await db.insertItems(DownloadItemMapper.mapToDownloadItem(entity));
   }
 
   Future<void> updateEntity(DownloadItemEntity entity) async{
