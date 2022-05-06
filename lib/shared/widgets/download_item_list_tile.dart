@@ -98,10 +98,10 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
                         onTap: () {
                           if (item?.status == null) return;
                           if (item?.status ==
-                              DownloadTaskStatus.paused.value) {
+                              DownloadTaskStatus.running.value) {
                             widget.onPause(item!.taskId!);
                           } else if (item?.status ==
-                              DownloadTaskStatus.running.value) {
+                              DownloadTaskStatus.paused.value) {
                             widget.onResume(item!.taskId!);
                           } else if (item?.status ==
                               DownloadTaskStatus.canceled.value || item?.status ==

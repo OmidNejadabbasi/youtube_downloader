@@ -22,7 +22,7 @@ class DownloadItemRepository {
         event.map((e) => DownloadItemMapper.mapToEntity(e)).toList());
   }
 
-  void updateDownloadItemEntity(DownloadItemEntity value) {
-    db.updateDownloadItem(DownloadItemMapper.mapToDownloadItem(value));
+  void updateDownloadItemEntity(DownloadItemEntity value) async {
+    await db.updateDownloadItem(DownloadItemMapper.mapToDownloadItem(value));
   }
 }

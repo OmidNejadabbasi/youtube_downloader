@@ -65,7 +65,6 @@ class MainScreenBloc {
       print('update triggered');
       item.add(
         item.value.copyWith(
-          taskId: id,
           status: status.value,
           downloaded: progress,
         ),
@@ -89,6 +88,7 @@ class MainScreenBloc {
     final SendPort send =
         IsolateNameServer.lookupPortByName('downloader_send_port')!;
     send.send([id, status, progress]);
+    print('download callback triggered');
   }
 
   Future<void> _prepare() async {
@@ -166,14 +166,32 @@ class MainScreenBloc {
     FlutterDownloader.pause(taskId: taskId);
   }
 
-  void onItemResumeClicked(String taskId) {
-    FlutterDownloader.resume(taskId: taskId);
+  void onItemResumeClicked(String taskId) async {
+    var id = await FlutterDownloader.resume(taskId: taskId);
+    var item = observableItemList
+        .where((element) => element.value.taskId == id)
+        .toList()[0];
+    item.add(
+      item.value.copyWith(
+        taskId: id,
+      ),
+    );
+    _repository.updateDownloadItemEntity(item.value);
   }
   void onItemRemoveClicked(String taskId) {
     FlutterDownloader.remove(taskId: taskId);
   }
 
-  void onItemRetryClicked(String taskId) {
-    FlutterDownloader.retry(taskId: taskId);
+  void onItemRetryClicked(String taskId)  async{
+    var id = await FlutterDownloader.retry(taskId: taskId);
+    var item = observableItemList
+        .where((element) => element.value.taskId == id)
+        .toList()[0];
+    item.add(
+      item.value.copyWith(
+        taskId: id,
+      ),
+    );
+    _repository.updateDownloadItemEntity(item.value);
   }
 }
