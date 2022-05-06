@@ -4,7 +4,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 
 class DownloadItemListTile extends StatefulWidget {
-  BehaviorSubject<DownloadItemEntity> downloadItem;
+  DownloadItemEntity downloadItem;
   void Function(String taskId) onPause;
   void Function(String taskId) onResume;
   void Function(String taskId) onRetry;
@@ -22,17 +22,10 @@ class DownloadItemListTile extends StatefulWidget {
 }
 
 class _DownloadItemListTileState extends State<DownloadItemListTile> {
-  DownloadItemEntity? item;
 
   @override
   void initState() {
     super.initState();
-    widget.downloadItem.listen((value) {
-      setState(() {
-        item = value;
-        print('item ${item?.taskId} updated status ${item?.status}');
-      });
-    });
   }
 
   @override
@@ -47,7 +40,7 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
       child: Row(
         children: [
           Image.network(
-            item?.thumbnailLink ?? 'https://via.placeholder.com/150',
+            widget.downloadItem.thumbnailLink ?? 'https://via.placeholder.com/150',
             height: 96,
             width: 128,
             fit: BoxFit.cover,
@@ -67,13 +60,13 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item?.title ?? '(...)',
+                    widget.downloadItem.title ?? '(...)',
                     style: const TextStyle(fontSize: 18),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    item?.quality ?? '(...)',
+                    widget.downloadItem.quality ?? '(...)',
                     style: const TextStyle(fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -84,29 +77,29 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
                       InkWell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: item?.status ==
+                          child: widget.downloadItem.status ==
                                   DownloadTaskStatus.paused.value
                               ? const Icon(Icons.play_arrow)
-                              : item?.status ==
+                              : widget.downloadItem.status ==
                                       DownloadTaskStatus.complete.value
                                   ? const Icon(Icons.check)
-                                  : item?.status ==
+                                  : widget.downloadItem.status ==
                                           DownloadTaskStatus.failed.value
                                       ? const Icon(Icons.restart_alt)
                                       : const Icon(Icons.pause),
                         ),
                         onTap: () {
-                          if (item?.status == null) return;
-                          if (item?.status ==
+                          if (widget.downloadItem.status == null) return;
+                          if (widget.downloadItem.status ==
                               DownloadTaskStatus.running.value) {
-                            widget.onPause(item!.taskId!);
-                          } else if (item?.status ==
+                            widget.onPause(widget.downloadItem.taskId!);
+                          } else if (widget.downloadItem.status ==
                               DownloadTaskStatus.paused.value) {
-                            widget.onResume(item!.taskId!);
-                          } else if (item?.status ==
-                              DownloadTaskStatus.canceled.value || item?.status ==
+                            widget.onResume(widget.downloadItem.taskId!);
+                          } else if (widget.downloadItem.status ==
+                              DownloadTaskStatus.canceled.value || widget.downloadItem.status ==
                               DownloadTaskStatus.failed.value) {
-                            widget.onRetry(item!.taskId!);
+                            widget.onRetry(widget.downloadItem.taskId!);
                           }
                         },
                       ),
@@ -114,7 +107,7 @@ class _DownloadItemListTileState extends State<DownloadItemListTile> {
                   ),
                   LinearProgressIndicator(
                     minHeight: 3,
-                    value: (item?.downloaded ?? 0) / 100,
+                    value: (widget.downloadItem.downloaded ?? 0) / 100,
                   )
                 ],
               ),

@@ -17,7 +17,7 @@ import 'main_screen_states.dart';
 
 class MainScreenBloc {
   late DownloadItemRepository _repository;
-  List<BehaviorSubject<DownloadItemEntity>> observableItemList = [];
+  List<DownloadItemEntity> observableItemList = [];
   bool _permissionReady = false;
   late String _localPath;
   ReceivePort _port = ReceivePort();
@@ -27,7 +27,7 @@ class MainScreenBloc {
     _repository.getAllItemsStream().listen((event) {
       print('Download list updated');
       print(event.map((e) => e.id).toList());
-      observableItemList = event.map((e) => BehaviorSubject.seeded(e)).toList();
+      observableItemList = event;
       _mainScreenStateSubject.add(
         MainScreenState(
           observableItemList: observableItemList,
@@ -59,17 +59,14 @@ class MainScreenBloc {
       String id = data[0];
       DownloadTaskStatus status = data[1];
       int progress = data[2];
-      var item = observableItemList
-          .where((element) => element.value.taskId == id)
-          .toList()[0];
-      print('update triggered');
-      item.add(
-        item.value.copyWith(
-          status: status.value,
-          downloaded: progress,
+      var indexOf = observableItemList.indexWhere((element) => element.taskId == id);
+      observableItemList[indexOf] = observableItemList[indexOf].copyWith(taskId: id, status: status.value, downloaded: progress);
+      _mainScreenStateSubject.add(
+        MainScreenState(
+          observableItemList: observableItemList,
         ),
       );
-      _repository.updateDownloadItemEntity(item.value);
+      _repository.updateDownloadItemEntity(observableItemList[indexOf]);
     });
 
     FlutterDownloader.registerCallback(downloadCallback);
@@ -168,15 +165,18 @@ class MainScreenBloc {
 
   void onItemResumeClicked(String taskId) async {
     var id = await FlutterDownloader.resume(taskId: taskId);
+    var indexOf = observableItemList.indexWhere((element) => element.taskId == id);
+    observableItemList[indexOf] = observableItemList[indexOf].copyWith(taskId: id);
+    _repository.updateDownloadItemEntity(observableItemList[indexOf]);
     var item = observableItemList
-        .where((element) => element.value.taskId == id)
+        .where((element) => element.taskId == id)
         .toList()[0];
-    item.add(
-      item.value.copyWith(
-        taskId: id,
+    _repository.updateDownloadItemEntity(item);
+    _mainScreenStateSubject.add(
+      MainScreenState(
+        observableItemList: observableItemList,
       ),
     );
-    _repository.updateDownloadItemEntity(item.value);
   }
   void onItemRemoveClicked(String taskId) {
     FlutterDownloader.remove(taskId: taskId);
@@ -184,14 +184,13 @@ class MainScreenBloc {
 
   void onItemRetryClicked(String taskId)  async{
     var id = await FlutterDownloader.retry(taskId: taskId);
-    var item = observableItemList
-        .where((element) => element.value.taskId == id)
-        .toList()[0];
-    item.add(
-      item.value.copyWith(
-        taskId: id,
+    var indexOf = observableItemList.indexWhere((element) => element.taskId == id);
+    observableItemList[indexOf] = observableItemList[indexOf].copyWith(taskId: id);
+    _repository.updateDownloadItemEntity(observableItemList[indexOf]);
+    _mainScreenStateSubject.add(
+      MainScreenState(
+        observableItemList: observableItemList,
       ),
     );
-    _repository.updateDownloadItemEntity(item.value);
   }
 }
