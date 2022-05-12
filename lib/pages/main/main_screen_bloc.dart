@@ -40,17 +40,19 @@ class MainScreenBloc {
       } else if (event.runtimeType == AddDownloadItemEvent) {
         final evt = event as AddDownloadItemEvent;
 
-        String fileName = evt.entity.title+"-"+ evt.entity.fps + 'p.mp4';
+        String fileName = evt.entity.title + "-" + evt.entity.fps + 'p.mp4';
         int counter = 1;
-        while(File(_localPath +"/"+ fileName ).existsSync()){
-          fileName = evt.entity.title+"-"+ evt.entity.fps + '($counter).mp4';
+        while (File(_localPath + "/" + fileName).existsSync()) {
+          fileName = evt.entity.title + "-" + evt.entity.fps + '($counter).mp4';
         }
         var taskId = await FlutterDownloader.enqueue(
-            url: evt.entity.link,
-            savedDir: _localPath,
-            fileName: fileName,);
+          url: evt.entity.link,
+          savedDir: _localPath,
+          fileName: fileName,
+        );
         await _repository
             .insertDownloadItemEntity(evt.entity.copyWith(taskId: taskId));
+
       }
     });
     IsolateNameServer.registerPortWithName(
@@ -59,8 +61,11 @@ class MainScreenBloc {
       String id = data[0];
       DownloadTaskStatus status = data[1];
       int progress = data[2];
-      var indexOf = observableItemList.indexWhere((element) => element.taskId == id);
-      observableItemList[indexOf] = observableItemList[indexOf].copyWith(taskId: id, status: status.value, downloaded: progress);
+      var indexOf =
+          observableItemList.indexWhere((element) => element.taskId == id);
+      if (indexOf < 0) return;
+      observableItemList[indexOf] = observableItemList[indexOf]
+          .copyWith(taskId: id, status: status.value, downloaded: progress);
       _mainScreenStateSubject.add(
         MainScreenState(
           observableItemList: observableItemList,
@@ -165,12 +170,14 @@ class MainScreenBloc {
 
   void onItemResumeClicked(String taskId) async {
     var id = await FlutterDownloader.resume(taskId: taskId);
-    var indexOf = observableItemList.indexWhere((element) => element.taskId == id);
-    observableItemList[indexOf] = observableItemList[indexOf].copyWith(taskId: id);
+    var indexOf =
+        observableItemList.indexWhere((element) => element.taskId == taskId);
+    if (indexOf < 0) return;
+    observableItemList[indexOf] =
+        observableItemList[indexOf].copyWith(taskId: id);
     _repository.updateDownloadItemEntity(observableItemList[indexOf]);
-    var item = observableItemList
-        .where((element) => element.taskId == id)
-        .toList()[0];
+    var item =
+        observableItemList.where((element) => element.taskId == id).toList()[0];
     _repository.updateDownloadItemEntity(item);
     _mainScreenStateSubject.add(
       MainScreenState(
@@ -178,14 +185,18 @@ class MainScreenBloc {
       ),
     );
   }
+
   void onItemRemoveClicked(String taskId) {
     FlutterDownloader.remove(taskId: taskId);
   }
 
-  void onItemRetryClicked(String taskId)  async{
+  void onItemRetryClicked(String taskId) async {
     var id = await FlutterDownloader.retry(taskId: taskId);
-    var indexOf = observableItemList.indexWhere((element) => element.taskId == id);
-    observableItemList[indexOf] = observableItemList[indexOf].copyWith(taskId: id);
+    var indexOf =
+        observableItemList.indexWhere((element) => element.taskId == taskId);
+    if (indexOf < 0) return;
+    observableItemList[indexOf] =
+        observableItemList[indexOf].copyWith(taskId: id);
     _repository.updateDownloadItemEntity(observableItemList[indexOf]);
     _mainScreenStateSubject.add(
       MainScreenState(
