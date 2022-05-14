@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 
 class DownloadItemListTile extends StatelessWidget{
@@ -32,7 +31,7 @@ class DownloadItemListTile extends StatelessWidget{
       child: Row(
         children: [
           Image.network(
-            downloadItem.thumbnailLink ?? 'https://via.placeholder.com/150',
+            downloadItem.thumbnailLink,
             height: 96,
             width: 128,
             fit: BoxFit.cover,
@@ -52,20 +51,23 @@ class DownloadItemListTile extends StatelessWidget{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    downloadItem.title ?? '(...)',
+                    downloadItem.title,
                     style: const TextStyle(fontSize: 18),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    downloadItem.quality ?? '(...)',
+                    downloadItem.format.toUpperCase() + " - "
+                        + downloadItem.quality + " - "
+                        + Duration(seconds: downloadItem.duration).toString().replaceAll(RegExp(r'[.]\d+'), ""),
                     style: const TextStyle(fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Text(downloadItem.downloaded.toString() + '%'),
                       InkWell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -99,7 +101,7 @@ class DownloadItemListTile extends StatelessWidget{
                   ),
                   LinearProgressIndicator(
                     minHeight: 3,
-                    value: (downloadItem.downloaded ?? 0) / 100,
+                    value: (downloadItem.downloaded) / 100,
                   )
                 ],
               ),

@@ -40,7 +40,7 @@ class MainScreenBloc {
       } else if (event.runtimeType == AddDownloadItemEvent) {
         final evt = event as AddDownloadItemEvent;
 
-        String fileName = evt.entity.title + "-" + evt.entity.fps + 'p.mp4';
+        String fileName = evt.entity.title.replaceAll(RegExp(r"/"), "-") + "-" + evt.entity.fps + '.mp4';
         int counter = 1;
         while (File(_localPath + "/" + fileName).existsSync()) {
           fileName = evt.entity.title + "-" + evt.entity.fps + '($counter).mp4';
@@ -49,6 +49,7 @@ class MainScreenBloc {
           url: evt.entity.link,
           savedDir: _localPath,
           fileName: fileName,
+          saveInPublicStorage: true,
         );
         await _repository
             .insertDownloadItemEntity(evt.entity.copyWith(taskId: taskId));
@@ -114,9 +115,9 @@ class MainScreenBloc {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     if (Platform.isAndroid && androidInfo.version.sdkInt <= 30) {
-      final status = await Permission.storage.status;
+      final status = await Permission.manageExternalStorage.status;
       if (status != PermissionStatus.granted) {
-        final result = await Permission.storage.request();
+        final result = await Permission.manageExternalStorage.request();
         print("Permission result   " + result.toString());
         if (result == PermissionStatus.granted) {
           return true;
