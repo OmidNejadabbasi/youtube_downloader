@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 
-class DownloadItemListTile extends StatelessWidget{
+class DownloadItemListTile extends StatelessWidget {
   DownloadItemEntity downloadItem;
   void Function(String taskId) onPause;
   void Function(String taskId) onResume;
@@ -15,9 +15,6 @@ class DownloadItemListTile extends StatelessWidget{
     required this.onResume,
     required this.onRetry,
   }) : super(key: key);
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +54,13 @@ class DownloadItemListTile extends StatelessWidget{
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    downloadItem.format.toUpperCase() + " - "
-                        + downloadItem.quality + " - "
-                        + Duration(seconds: downloadItem.duration).toString().replaceAll(RegExp(r'[.]\d+'), ""),
+                    downloadItem.format.toUpperCase() +
+                        " - " +
+                        downloadItem.quality +
+                        " - " +
+                        Duration(seconds: downloadItem.duration)
+                            .toString()
+                            .replaceAll(RegExp(r'[.]\d+'), ""),
                     style: const TextStyle(fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -67,7 +68,9 @@ class DownloadItemListTile extends StatelessWidget{
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(downloadItem.downloaded.toString() + '%'),
+                      Text(downloadItem.status == DownloadTaskStatus.failed.value
+                          ? "Error!"
+                          : downloadItem.downloaded.toString() + '%'),
                       InkWell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -91,8 +94,9 @@ class DownloadItemListTile extends StatelessWidget{
                               DownloadTaskStatus.paused.value) {
                             onResume(downloadItem.taskId!);
                           } else if (downloadItem.status ==
-                              DownloadTaskStatus.canceled.value || downloadItem.status ==
-                              DownloadTaskStatus.failed.value) {
+                                  DownloadTaskStatus.canceled.value ||
+                              downloadItem.status ==
+                                  DownloadTaskStatus.failed.value) {
                             onRetry(downloadItem.taskId!);
                           }
                         },
@@ -101,6 +105,9 @@ class DownloadItemListTile extends StatelessWidget{
                   ),
                   LinearProgressIndicator(
                     minHeight: 3,
+                    color: downloadItem.status == DownloadTaskStatus.complete.value
+                        ? Colors.green
+                        : Colors.blue,
                     value: (downloadItem.downloaded) / 100,
                   )
                 ],

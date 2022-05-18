@@ -191,6 +191,10 @@ class MainScreenBloc {
     FlutterDownloader.remove(taskId: taskId);
   }
 
+  void onItemOpenClicked(String taskId) async{
+    print(await FlutterDownloader.open(taskId: taskId));
+  }
+
   void onItemRetryClicked(String taskId) async {
     var id = await FlutterDownloader.retry(taskId: taskId);
     var indexOf =

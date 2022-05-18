@@ -94,8 +94,17 @@ class _YoutubeLinkExtractorDialogState
                           Container(
                             child: Image.network(
                               state.videoMeta.thumbnails.mediumResUrl,
-                              height: 70,
+                              height: 96,
+                              width: 128,
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/images/placeholder.jpeg',
+                                  height: 96,
+                                  width: 128,
+                                  fit: BoxFit.cover,
+                                );
+                              },
                             ),
                             decoration: BoxDecoration(
                                 borderRadius:

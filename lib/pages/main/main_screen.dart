@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
@@ -157,11 +158,19 @@ class _MainScreenState extends State<MainScreen> {
     return ListView.builder(
       itemCount: state.observableItemList.length,
       itemBuilder: (context, index) {
-        return DownloadItemListTile(
-          downloadItem: state.observableItemList[index],
-          onPause: _bloc.onItemPauseClicked,
-          onResume: _bloc.onItemResumeClicked,
-          onRetry: _bloc.onItemRetryClicked,
+        return GestureDetector(
+          onTap: () {
+            if (state.observableItemList[index].status ==
+                DownloadTaskStatus.complete.value) {
+              _bloc.onItemOpenClicked(state.observableItemList[index].taskId!);
+            }
+          },
+          child: DownloadItemListTile(
+            downloadItem: state.observableItemList[index],
+            onPause: _bloc.onItemPauseClicked,
+            onResume: _bloc.onItemResumeClicked,
+            onRetry: _bloc.onItemRetryClicked,
+          ),
         );
       },
     );
