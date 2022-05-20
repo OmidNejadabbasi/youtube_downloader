@@ -5,6 +5,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
+import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_events.dart';
 import 'package:youtube_downloader/pages/main/main_screeen_events.dart';
 import 'package:youtube_downloader/pages/main/main_screen_bloc.dart';
 import 'package:youtube_downloader/shared/widgets/download_item_list_tile.dart';
@@ -23,6 +24,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   late MainScreenBloc _bloc;
   bool isStoragePermissionGranted = false;
+  bool _isCompletedTabSelected = true;
 
   @override
   void initState() {
@@ -63,7 +65,7 @@ class _MainScreenState extends State<MainScreen> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 3),
+                    BoxShadow(color: Colors.black12, spreadRadius: -2, blurRadius: 5),
                   ],
                 ),
                 child: Row(
@@ -87,27 +89,56 @@ class _MainScreenState extends State<MainScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 0),
               Expanded(
                 child: Container(
-                  color: Colors.white38,
+                  color: Colors.white70,
                   child: StreamBuilder(
                     stream: _bloc.mainScreenState,
                     builder: (context, snapshot) {
-                      if (snapshot.data is MainScreenState &&
-                          (snapshot.data as MainScreenState)
-                              .observableItemList
-                              .isNotEmpty) {
-                        print('some state');
-                        return _buildMainList(
-                            context, snapshot.data! as MainScreenState);
-                      } else if (snapshot.data is PermissionNotGrantedState) {
-                        return _buildPermissionNotGrantedView(context,
-                            snapshot.data! as PermissionNotGrantedState);
+                      var state = snapshot.data;
+
+                      if ((snapshot.data is MainScreenState)) {
+                        var itemList = (state as MainScreenState)
+                            .observableItemList
+                            .where((element) => _isCompletedTabSelected
+                                ? element.status ==
+                                    DownloadTaskStatus.complete.value
+                                : element.status !=
+                                    DownloadTaskStatus.complete.value)
+                            .toList();
+                        if (itemList.isNotEmpty) {
+                          return _buildMainList(context, itemList);
+                        } else {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/idea.png',
+                                height: 100,
+                                width: 100,
+                                fit: BoxFit.cover,
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                'No items to show!\nPress the add button to download new items',
+                                style: Styles.labelTextStyle.copyWith(
+                                  color: Colors.grey,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(
+                                height: 120,
+                              ),
+                            ],
+                          );
+                        }
+                      } else if (state is PermissionNotGrantedState) {
+                        return _buildPermissionNotGrantedView(context, state);
                       }
-                      print('no state yet');
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
                         children: [
                           Image.asset(
                             'assets/images/idea.png',
@@ -136,6 +167,24 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (value) {
+          setState(() {
+            _isCompletedTabSelected = value == 1;
+          });
+        },
+        currentIndex: _isCompletedTabSelected ? 1 : 0,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.stop_circle_outlined),
+            label: "Queue",
+          ),
+          BottomNavigationBarItem(
+            label: "Completed",
+            icon: Icon(Icons.done_all),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         backgroundColor: Styles.colorPrimary,
@@ -154,19 +203,19 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildMainList(BuildContext context, MainScreenState state) {
+  Widget _buildMainList(
+      BuildContext context, List<DownloadItemEntity> itemList) {
     return ListView.builder(
-      itemCount: state.observableItemList.length,
+      itemCount: itemList.length,
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            if (state.observableItemList[index].status ==
-                DownloadTaskStatus.complete.value) {
-              _bloc.onItemOpenClicked(state.observableItemList[index].taskId!);
+            if (itemList[index].status == DownloadTaskStatus.complete.value) {
+              _bloc.onItemOpenClicked(itemList[index].taskId!);
             }
           },
           child: DownloadItemListTile(
-            downloadItem: state.observableItemList[index],
+            downloadItem: itemList[index],
             onPause: _bloc.onItemPauseClicked,
             onResume: _bloc.onItemResumeClicked,
             onRetry: _bloc.onItemRetryClicked,
