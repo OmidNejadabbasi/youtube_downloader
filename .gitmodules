@@ -1,0 +1,3 @@
+[submodule "flutter_downloader"]
+	path = flutter_downloader
+	url = https://github.com/OmidNejadabbasi/flutter_downloader.git

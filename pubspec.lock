@@ -289,10 +289,10 @@ packages:
   flutter_downloader:
     dependency: "direct main"
     description:
-      name: flutter_downloader
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.7.3"
+      path: flutter_downloader
+      relative: true
+    source: path
+    version: "1.7.4"
   flutter_lints:
     dependency: "direct dev"
     description:
