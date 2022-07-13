@@ -115,9 +115,9 @@ class MainScreenBloc {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     if (Platform.isAndroid && androidInfo.version.sdkInt <= 30) {
-      final status = await Permission.manageExternalStorage.status;
+      final status = await Permission.storage.status;
       if (status != PermissionStatus.granted) {
-        final result = await Permission.manageExternalStorage.request();
+        final result = await Permission.storage.request();
         print("Permission result   " + result.toString());
         if (result == PermissionStatus.granted) {
           return true;

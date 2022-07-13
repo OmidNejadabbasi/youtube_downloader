@@ -41,7 +41,8 @@ dependencies:
   get_it:
   http:
   flutter_downloader:
-    path: ./flutter_downloader
+  fetchme:
+    path: ./fetchme
   device_info:
   permission_handler:
   cached_network_image:
