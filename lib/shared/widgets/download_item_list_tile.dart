@@ -70,7 +70,7 @@ class DownloadItemListTile extends StatelessWidget {
                     children: [
                       Text(downloadItem.status == DownloadTaskStatus.failed.value
                           ? "Error!"
-                          : ((downloadItem.downloaded / downloadItem.size) * 100).toString() + '%'),
+                          : _format((downloadItem.downloaded / downloadItem.size) * 100) + '%'),
                       InkWell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -108,7 +108,7 @@ class DownloadItemListTile extends StatelessWidget {
                     color: downloadItem.status == DownloadTaskStatus.complete.value
                         ? Colors.green
                         : Colors.blue,
-                    value: (downloadItem.downloaded) * 100 / downloadItem.size ,
+                    value: (downloadItem.downloaded / downloadItem.size) ,
                   )
                 ],
               ),
@@ -118,4 +118,8 @@ class DownloadItemListTile extends StatelessWidget {
       ),
     );
   }
+}
+
+String _format(double n) {
+  return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 1);
 }
