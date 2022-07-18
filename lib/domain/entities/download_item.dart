@@ -13,7 +13,7 @@ class DownloadItemEntity {
   final String quality;
   final int duration;
   final String thumbnailLink;
-  final String? taskId;
+  final int? taskId;
   final int? status;
 
   DownloadItemEntity({
@@ -44,7 +44,7 @@ class DownloadItemEntity {
     String? quality,
     int? duration,
     String? thumbnailLink,
-    String? taskId,
+    int? taskId,
     int? status,
   }) {
     return DownloadItemEntity(

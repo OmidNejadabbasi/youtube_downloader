@@ -4,9 +4,9 @@ import 'package:youtube_downloader/domain/entities/download_item.dart';
 
 class DownloadItemListTile extends StatelessWidget {
   DownloadItemEntity downloadItem;
-  void Function(String taskId) onPause;
-  void Function(String taskId) onResume;
-  void Function(String taskId) onRetry;
+  void Function(int taskId) onPause;
+  void Function(int taskId) onResume;
+  void Function(int taskId) onRetry;
 
   DownloadItemListTile({
     Key? key,
@@ -70,7 +70,7 @@ class DownloadItemListTile extends StatelessWidget {
                     children: [
                       Text(downloadItem.status == DownloadTaskStatus.failed.value
                           ? "Error!"
-                          : downloadItem.downloaded.toString() + '%'),
+                          : ((downloadItem.downloaded / downloadItem.size) * 100).toString() + '%'),
                       InkWell(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -108,7 +108,7 @@ class DownloadItemListTile extends StatelessWidget {
                     color: downloadItem.status == DownloadTaskStatus.complete.value
                         ? Colors.green
                         : Colors.blue,
-                    value: (downloadItem.downloaded) / 100,
+                    value: (downloadItem.downloaded) * 100 / downloadItem.size ,
                   )
                 ],
               ),

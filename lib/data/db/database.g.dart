@@ -19,7 +19,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
   final String? quality;
   final int? duration;
   final String? thumbnail_link;
-  final String? task_id;
+  final int? task_id;
   final int? status;
   DownloadItem(
       {required this.id,
@@ -60,7 +60,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           .mapFromDatabaseResponse(data['${effectivePrefix}duration']),
       thumbnail_link: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}thumbnail_link']),
-      task_id: const StringType()
+      task_id: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}task_id']),
       status: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}status']),
@@ -91,7 +91,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       map['thumbnail_link'] = Variable<String?>(thumbnail_link);
     }
     if (!nullToAbsent || task_id != null) {
-      map['task_id'] = Variable<String?>(task_id);
+      map['task_id'] = Variable<int?>(task_id);
     }
     if (!nullToAbsent || status != null) {
       map['status'] = Variable<int?>(status);
@@ -142,7 +142,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       quality: serializer.fromJson<String?>(json['quality']),
       duration: serializer.fromJson<int?>(json['duration']),
       thumbnail_link: serializer.fromJson<String?>(json['thumbnail_link']),
-      task_id: serializer.fromJson<String?>(json['task_id']),
+      task_id: serializer.fromJson<int?>(json['task_id']),
       status: serializer.fromJson<int?>(json['status']),
     );
   }
@@ -161,7 +161,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       'quality': serializer.toJson<String?>(quality),
       'duration': serializer.toJson<int?>(duration),
       'thumbnail_link': serializer.toJson<String?>(thumbnail_link),
-      'task_id': serializer.toJson<String?>(task_id),
+      'task_id': serializer.toJson<int?>(task_id),
       'status': serializer.toJson<int?>(status),
     };
   }
@@ -178,7 +178,7 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           String? quality,
           int? duration,
           String? thumbnail_link,
-          String? task_id,
+          int? task_id,
           int? status}) =>
       DownloadItem(
         id: id ?? this.id,
@@ -249,7 +249,7 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
   final Value<String?> quality;
   final Value<int?> duration;
   final Value<String?> thumbnail_link;
-  final Value<String?> task_id;
+  final Value<int?> task_id;
   final Value<int?> status;
   const DownloadItemsCompanion({
     this.id = const Value.absent(),
@@ -295,7 +295,7 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
     Expression<String?>? quality,
     Expression<int?>? duration,
     Expression<String?>? thumbnail_link,
-    Expression<String?>? task_id,
+    Expression<int?>? task_id,
     Expression<int?>? status,
   }) {
     return RawValuesInsertable({
@@ -327,7 +327,7 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
       Value<String?>? quality,
       Value<int?>? duration,
       Value<String?>? thumbnail_link,
-      Value<String?>? task_id,
+      Value<int?>? task_id,
       Value<int?>? status}) {
     return DownloadItemsCompanion(
       id: id ?? this.id,
@@ -383,7 +383,7 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
       map['thumbnail_link'] = Variable<String?>(thumbnail_link.value);
     }
     if (task_id.present) {
-      map['task_id'] = Variable<String?>(task_id.value);
+      map['task_id'] = Variable<int?>(task_id.value);
     }
     if (status.present) {
       map['status'] = Variable<int?>(status.value);
@@ -484,9 +484,9 @@ class $DownloadItemsTable extends DownloadItems
       type: const StringType(), requiredDuringInsert: false);
   final VerificationMeta _task_idMeta = const VerificationMeta('task_id');
   @override
-  late final GeneratedColumn<String?> task_id = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> task_id = GeneratedColumn<int?>(
       'task_id', aliasedName, true,
-      type: const StringType(), requiredDuringInsert: false);
+      type: const IntType(), requiredDuringInsert: false);
   final VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<int?> status = GeneratedColumn<int?>(

@@ -57,7 +57,7 @@ class LinkExtractorDialogBloc {
             title: video.title,
             duration: video.duration?.inSeconds ?? 0,
             quality: item.videoQuality.toString().replaceAll(RegExp('[A-Za-z.]+'), '') + "p",
-            taskId: '',
+            taskId: 0,
             status: DownloadTaskStatus.undefined.value,
           ));
         }
@@ -71,7 +71,7 @@ class LinkExtractorDialogBloc {
             title: video.title,
             duration: video.duration?.inSeconds ?? 0,
             quality: item.videoQuality.toString().replaceAll(RegExp('[A-za-z.]'), '') + "p",
-            taskId: '',
+            taskId: 0,
             status: DownloadTaskStatus.undefined.value,
           ));
         }
