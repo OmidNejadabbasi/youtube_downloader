@@ -88,7 +88,7 @@ class MainScreenBloc {
     //   FlutterDownloader.registerCallback(downloadCallback);
 
     Fetchme.getUpdateStream().listen((updatedItem) {
-      print("updated *****");
+      print("item status" + updatedItem.status.toString());
       int index = observableItemList
           .indexWhere((element) => element.taskId == updatedItem.id);
       if (updatedItem.status.value > 6) return;
@@ -96,6 +96,7 @@ class MainScreenBloc {
         observableItemList[index] = observableItemList[index].copyWith(
             downloaded: updatedItem.downloaded,
             status: updatedItem.status.value, size: updatedItem.total);
+        _repository.updateDownloadItemEntity(observableItemList[index]);
         _mainScreenStateSubject.add(
           MainScreenState(
             observableItemList: observableItemList,

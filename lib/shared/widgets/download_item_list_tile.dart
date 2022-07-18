@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fetchme/fetchme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 
 class DownloadItemListTile extends StatelessWidget {
@@ -18,6 +20,7 @@ class DownloadItemListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(downloadItem.status.toString());
     return Container(
       margin: const EdgeInsets.all(6),
       clipBehavior: Clip.hardEdge,
@@ -27,88 +30,93 @@ class DownloadItemListTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.network(
-            downloadItem.thumbnailLink,
-            height: 96,
-            width: 128,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Image.asset(
+          Stack(children: [
+            CachedNetworkImage(
+              imageUrl: downloadItem.thumbnailLink,
+              imageBuilder: (context, provider) => Container(
+                width: 100,
+                height: 75,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: provider,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              placeholder: (context, provider) => Image.asset(
                 'assets/images/placeholder.jpeg',
-                height: 96,
-                width: 128,
+                width: 100,
+                height: 75,
                 fit: BoxFit.cover,
-              );
-            },
-          ),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Text(
+                Duration(seconds: downloadItem.duration)
+                    .toString()
+                    .replaceAll(RegExp(r'[.]\d+'), ""),
+                style: TextStyle(
+                    backgroundColor: Colors.black38, color: Colors.white70),
+              ),
+            ),
+          ]),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 7.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     downloadItem.title,
-                    style: const TextStyle(fontSize: 18),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    downloadItem.format.toUpperCase() +
-                        " - " +
-                        downloadItem.quality +
-                        " - " +
-                        Duration(seconds: downloadItem.duration)
-                            .toString()
-                            .replaceAll(RegExp(r'[.]\d+'), ""),
                     style: const TextStyle(fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(downloadItem.status == DownloadTaskStatus.failed.value
-                          ? "Error!"
-                          : _format((downloadItem.downloaded / downloadItem.size) * 100) + '%'),
-                      InkWell(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: downloadItem.status ==
-                                  DownloadTaskStatus.paused.value
-                              ? const Icon(Icons.play_arrow)
-                              : downloadItem.status ==
-                                      DownloadTaskStatus.complete.value
-                                  ? const Icon(Icons.check)
-                                  : downloadItem.status ==
-                                          DownloadTaskStatus.failed.value
-                                      ? const Icon(Icons.restart_alt)
-                                      : const Icon(Icons.pause),
+                      Container(
+                        padding: EdgeInsets.all(2),
+                        child: Text(
+                          downloadItem.format.toUpperCase(),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12),
                         ),
-                        onTap: () {
-                          if (downloadItem.status == null) return;
-                          if (downloadItem.status ==
-                              DownloadTaskStatus.running.value) {
-                            onPause(downloadItem.taskId!);
-                          } else if (downloadItem.status ==
-                              DownloadTaskStatus.paused.value) {
-                            onResume(downloadItem.taskId!);
-                          } else if (downloadItem.status ==
-                                  DownloadTaskStatus.canceled.value ||
-                              downloadItem.status ==
-                                  DownloadTaskStatus.failed.value) {
-                            onRetry(downloadItem.taskId!);
-                          }
-                        },
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(3))),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        downloadItem.quality,
+                        style: const TextStyle(fontSize: 14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: buildActionButton(),
+                        ),
                       ),
                     ],
                   ),
+                  // Text(
+                  //     downloadItem.status == DownloadTaskStatus.failed.value
+                  //         ? "Error!"
+                  //         : _format((downloadItem.downloaded /
+                  //                     downloadItem.size) *
+                  //                 100) +
+                  //             '%'),
                   LinearProgressIndicator(
                     minHeight: 3,
-                    color: downloadItem.status == DownloadTaskStatus.complete.value
-                        ? Colors.green
-                        : Colors.blue,
-                    value: (downloadItem.downloaded / downloadItem.size) ,
+                    color:
+                        downloadItem.status == DownloadTaskStatus.complete.value
+                            ? Colors.green
+                            : Colors.blue,
+                    value: (downloadItem.downloaded / downloadItem.size),
                   )
                 ],
               ),
@@ -116,6 +124,45 @@ class DownloadItemListTile extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  InkWell buildActionButton() {
+    var icon = downloadItem.status == DownloadTaskStatus.paused.value
+        ? Icons.play_arrow
+        : downloadItem.status == DownloadTaskStatus.complete.value
+            ? Icons.check
+            : downloadItem.status == DownloadTaskStatus.failed.value
+                ? Icons.restart_alt
+                : Icons.pause;
+
+    var color = downloadItem.status == DownloadTaskStatus.paused.value
+        ? Colors.green
+        : downloadItem.status == DownloadTaskStatus.complete.value
+            ? Colors.greenAccent
+            : downloadItem.status == DownloadTaskStatus.failed.value
+                ? Colors.amber
+                : Colors.black45;
+
+    return InkWell(
+      child: Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Icon(
+          icon,
+          color: color,
+        ),
+      ),
+      onTap: () {
+        if (downloadItem.status == null) return;
+        if (downloadItem.status == DownloadTaskStatus.running.value) {
+          onPause(downloadItem.taskId!);
+        } else if (downloadItem.status == DownloadTaskStatus.paused.value) {
+          onResume(downloadItem.taskId!);
+        } else if (downloadItem.status == DownloadTaskStatus.canceled.value ||
+            downloadItem.status == DownloadTaskStatus.failed.value) {
+          onRetry(downloadItem.taskId!);
+        }
+      },
     );
   }
 }
