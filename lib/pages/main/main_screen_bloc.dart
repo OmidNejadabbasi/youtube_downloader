@@ -6,7 +6,6 @@ import 'dart:ui';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:device_info/device_info.dart';
 import 'package:fetchme/fetchme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
@@ -88,14 +87,15 @@ class MainScreenBloc {
     //   FlutterDownloader.registerCallback(downloadCallback);
 
     Fetchme.getUpdateStream().listen((updatedItem) {
-      print("item status" + updatedItem.status.toString());
       int index = observableItemList
           .indexWhere((element) => element.taskId == updatedItem.id);
       if (updatedItem.status.value > 6) return;
       if (index > 0) {
+        print("item status" + updatedItem.status.toString());
         observableItemList[index] = observableItemList[index].copyWith(
             downloaded: updatedItem.downloaded,
-            status: updatedItem.status.value, size: updatedItem.total);
+            status: updatedItem.status.value,
+            size: updatedItem.total);
         _repository.updateDownloadItemEntity(observableItemList[index]);
         _mainScreenStateSubject.add(
           MainScreenState(

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class Styles {
 
@@ -8,8 +9,8 @@ class Styles {
   );
 
   static const TextStyle labelTextStyle = TextStyle(
-      fontSize: 16,
-
+      fontSize: 14,
+      color: Colors.black54
   );
 
   static const Color colorPrimary = Color(0xFF151515);

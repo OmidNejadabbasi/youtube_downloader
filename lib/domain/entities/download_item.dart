@@ -1,5 +1,7 @@
 
 
+import 'package:fetchme/fetchme.dart';
+
 class DownloadItemEntity {
 
   final int? id;
@@ -63,4 +65,17 @@ class DownloadItemEntity {
       status: status ?? this.status,
     );
   }
+
+  String getProgressPercentage(){
+    return '${_format((this.downloaded / this.size)*100)}%';
+  }
+
+  bool isCompleted(){
+    return status == DownloadTaskStatus.complete.value;
+  }
+
+  String _format(double n) {
+    return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 1);
+  }
+
 }

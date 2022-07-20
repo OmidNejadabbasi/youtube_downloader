@@ -3,6 +3,7 @@ import 'package:fetchme/fetchme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
+import 'package:youtube_downloader/shared/styles.dart';
 
 class DownloadItemListTile extends StatelessWidget {
   DownloadItemEntity downloadItem;
@@ -91,16 +92,18 @@ class DownloadItemListTile extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         downloadItem.quality,
-                        style: const TextStyle(fontSize: 14),
+                        style: Styles.labelTextStyle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Expanded(
                         child: Align(
                           alignment: Alignment.centerRight,
-                          child: buildActionButton(),
+                          child: Text(downloadItem.getProgressPercentage(), style: Styles.labelTextStyle,),
                         ),
                       ),
+
+                      buildActionButton()
                     ],
                   ),
                   // Text(
@@ -110,7 +113,7 @@ class DownloadItemListTile extends StatelessWidget {
                   //                     downloadItem.size) *
                   //                 100) +
                   //             '%'),
-                  LinearProgressIndicator(
+                  downloadItem.isCompleted()?const SizedBox():LinearProgressIndicator(
                     minHeight: 3,
                     color:
                         downloadItem.status == DownloadTaskStatus.complete.value
@@ -167,6 +170,3 @@ class DownloadItemListTile extends StatelessWidget {
   }
 }
 
-String _format(double n) {
-  return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 1);
-}
