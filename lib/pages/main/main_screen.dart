@@ -110,14 +110,12 @@ class _MainScreenState extends State<MainScreen> {
                                 : element.status !=
                                     DownloadTaskStatus.complete.value)
                             .toList();
-                        var completed = (state)
-                            .observableItemList
-                            .where((element) =>
-                                element.status ==
-                                DownloadTaskStatus.complete.value)
-                            .toList();
-                        completedCount = completed.length;
-                        queueCount = state.observableItemList.length - completedCount;
+                        completedCount = _isCompletedTabSelected
+                            ? itemList.length
+                            : -itemList.length + state.observableItemList.length;
+
+                        queueCount =
+                            state.observableItemList.length - completedCount;
                         if (itemList.isNotEmpty) {
                           return _buildMainList(context, itemList);
                         } else {

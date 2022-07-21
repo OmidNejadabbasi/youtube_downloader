@@ -65,7 +65,7 @@ class DownloadItemListTile extends StatelessWidget {
           ]),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 7.0),
+              padding: const EdgeInsets.fromLTRB(7.0, 3.0, 7.0, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -114,7 +114,8 @@ class DownloadItemListTile extends StatelessWidget {
                   //                 100) +
                   //             '%'),
                   downloadItem.isCompleted()?const SizedBox():LinearProgressIndicator(
-                    minHeight: 3,
+                    minHeight: 8,
+                    backgroundColor: Colors.black12,
                     color:
                         downloadItem.status == DownloadTaskStatus.complete.value
                             ? Colors.green
