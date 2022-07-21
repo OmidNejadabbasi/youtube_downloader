@@ -235,7 +235,7 @@ class _MainScreenState extends State<MainScreen> {
             key: ValueKey(itemList[index].value.id!),
             stream: itemList[index],
             builder: (context, AsyncSnapshot<DownloadItemEntity> snapshot) {
-              if (snapshot.data == null){
+              if (snapshot.data == null) {
                 return SizedBox();
               }
               print("build of item");
@@ -248,6 +248,11 @@ class _MainScreenState extends State<MainScreen> {
                     } else {
                       selectedIDs.add(snapshot.data!.id!);
                     }
+                    setState(() {
+                      if (selectedIDs.isEmpty) {
+                        isInSelectMode = false;
+                      }
+                    });
                     return;
                   }
                   if (snapshot.data!.status ==
@@ -260,6 +265,9 @@ class _MainScreenState extends State<MainScreen> {
                     return;
                   }
                   selectedIDs.add(snapshot.data!.id!);
+                  setState(() {
+                    isInSelectMode = true;
+                  });
                 },
                 child: DownloadItemListTile(
                   downloadItem: snapshot.data!,

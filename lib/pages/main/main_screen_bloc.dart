@@ -218,11 +218,10 @@ class MainScreenBloc {
     // var item =
     //     observableItemList.where((element) => element.taskId == id).toList()[0];
     // _repository.updateDownloadItemEntity(item);
-    refreshList();
   }
 
-  void onItemRemoveClicked(int taskId) {
-    Fetchme.delete(id: taskId);
+  void onItemRemoveClicked(int taskId) async{
+    await Fetchme.delete(id: taskId);
   }
 
   void onItemOpenClicked(int taskId) async {
