@@ -25,6 +25,8 @@ class _MainScreenState extends State<MainScreen> {
   late MainScreenBloc _bloc;
   bool isStoragePermissionGranted = false;
   bool _isCompletedTabSelected = true;
+  Set<int> selectedIDs = {};
+  bool isInSelectMode = false;
   int completedCount = 0;
   int queueCount = 0;
 
@@ -112,7 +114,8 @@ class _MainScreenState extends State<MainScreen> {
                             .toList();
                         completedCount = _isCompletedTabSelected
                             ? itemList.length
-                            : -itemList.length + state.observableItemList.length;
+                            : -itemList.length +
+                                state.observableItemList.length;
 
                         queueCount =
                             state.observableItemList.length - completedCount;
@@ -227,17 +230,33 @@ class _MainScreenState extends State<MainScreen> {
     return ListView.builder(
       itemCount: itemList.length,
       itemBuilder: (context, index) {
+        var isSelected = selectedIDs.contains(itemList[index].id!);
         return GestureDetector(
           onTap: () {
+            if (isInSelectMode) {
+              if (isSelected) {
+                selectedIDs.remove(itemList[index].id!);
+              } else {
+                selectedIDs.add(itemList[index].id!);
+              }
+              return;
+            }
             if (itemList[index].status == DownloadTaskStatus.complete.value) {
               _bloc.onItemOpenClicked(itemList[index].taskId!);
             }
+          },
+          onLongPress: () {
+            if (isInSelectMode) {
+              return;
+            }
+            selectedIDs.add(itemList[index].id!);
           },
           child: DownloadItemListTile(
             downloadItem: itemList[index],
             onPause: _bloc.onItemPauseClicked,
             onResume: _bloc.onItemResumeClicked,
             onRetry: _bloc.onItemRetryClicked,
+            isSelected: isSelected,
           ),
         );
       },

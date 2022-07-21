@@ -1,22 +1,23 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fetchme/fetchme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/shared/styles.dart';
 
 class DownloadItemListTile extends StatelessWidget {
-  DownloadItemEntity downloadItem;
-  void Function(int taskId) onPause;
-  void Function(int taskId) onResume;
-  void Function(int taskId) onRetry;
+  final DownloadItemEntity downloadItem;
+  final void Function(int taskId) onPause;
+  final void Function(int taskId) onResume;
+  final void Function(int taskId) onRetry;
+  final bool isSelected;
 
-  DownloadItemListTile({
+  const DownloadItemListTile({
     Key? key,
     required this.downloadItem,
     required this.onPause,
     required this.onResume,
     required this.onRetry,
+    required this.isSelected,
   }) : super(key: key);
 
   @override
@@ -78,7 +79,7 @@ class DownloadItemListTile extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(2),
                         child: Text(
                           downloadItem.format.toUpperCase(),
                           style: const TextStyle(
@@ -99,10 +100,12 @@ class DownloadItemListTile extends StatelessWidget {
                       Expanded(
                         child: Align(
                           alignment: Alignment.centerRight,
-                          child: Text(downloadItem.getProgressPercentage(), style: Styles.labelTextStyle,),
+                          child: Text(
+                            downloadItem.getProgressPercentage(),
+                            style: Styles.labelTextStyle,
+                          ),
                         ),
                       ),
-
                       buildActionButton()
                     ],
                   ),
@@ -113,15 +116,17 @@ class DownloadItemListTile extends StatelessWidget {
                   //                     downloadItem.size) *
                   //                 100) +
                   //             '%'),
-                  downloadItem.isCompleted()?const SizedBox():LinearProgressIndicator(
-                    minHeight: 8,
-                    backgroundColor: Colors.black12,
-                    color:
-                        downloadItem.status == DownloadTaskStatus.complete.value
-                            ? Colors.green
-                            : Colors.blue,
-                    value: (downloadItem.downloaded / downloadItem.size),
-                  )
+                  downloadItem.isCompleted()
+                      ? const SizedBox()
+                      : LinearProgressIndicator(
+                          minHeight: 8,
+                          backgroundColor: Colors.black12,
+                          color: downloadItem.status ==
+                                  DownloadTaskStatus.complete.value
+                              ? Colors.green
+                              : Colors.blue,
+                          value: (downloadItem.downloaded / downloadItem.size),
+                        )
                 ],
               ),
             ),
@@ -170,4 +175,3 @@ class DownloadItemListTile extends StatelessWidget {
     );
   }
 }
-
