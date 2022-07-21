@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:android_path_provider/android_path_provider.dart';
@@ -17,23 +16,23 @@ import 'main_screen_states.dart';
 
 class MainScreenBloc {
   late DownloadItemRepository _repository;
-  List<DownloadItemEntity> observableItemList = [];
+  List<BehaviorSubject<DownloadItemEntity>> observableItemList = [];
   bool _permissionReady = false;
   late String _localPath;
-  ReceivePort _port = ReceivePort();
 
   MainScreenBloc(DownloadItemRepository repository) {
     _repository = repository;
-    _repository.getAllItemsStream().listen((event) {
-      print('Download list updated');
-      print(event.map((e) => e.id).toList());
-      observableItemList = event;
-      _mainScreenStateSubject.add(
-        MainScreenState(
-          observableItemList: observableItemList,
-        ),
-      );
+    _repository.getAllItems().then((value) {
+      observableItemList = value.map((e) => BehaviorSubject.seeded(e)).toList();
+      refreshList();
     });
+    // _repository.getAllItemsStream().listen((event) {
+    //   for(var item in event){
+    //
+    //   }
+    //   observableItemList = event.map((e) => BehaviorSubject.seeded(e)).toList();
+    // });
+
     _mainScreenEvents.stream.listen((event) async {
       if (event.runtimeType == CheckStoragePermission) {
         await _prepare();
@@ -61,7 +60,8 @@ class MainScreenBloc {
             await Fetchme.enqueue(evt.entity.link, _localPath, fileName);
 
         var itemEntity = evt.entity.copyWith(taskId: newId);
-        observableItemList.add(itemEntity);
+        observableItemList.add(BehaviorSubject.seeded(itemEntity));
+        refreshList();
         _repository.insertDownloadItemEntity(itemEntity);
       }
     });
@@ -88,22 +88,32 @@ class MainScreenBloc {
 
     Fetchme.getUpdateStream().listen((updatedItem) {
       int index = observableItemList
+          .map((e) => e.value)
+          .toList()
           .indexWhere((element) => element.taskId == updatedItem.id);
       if (updatedItem.status.value > 6) return;
       if (index > 0) {
-        print("item status" + updatedItem.status.toString());
-        observableItemList[index] = observableItemList[index].copyWith(
+        print("item status " + updatedItem.downloaded.toString());
+        observableItemList[index].add(observableItemList[index].value.copyWith(
             downloaded: updatedItem.downloaded,
             status: updatedItem.status.value,
-            size: updatedItem.total);
-        _repository.updateDownloadItemEntity(observableItemList[index]);
-        _mainScreenStateSubject.add(
-          MainScreenState(
-            observableItemList: observableItemList,
-          ),
-        );
+            size: updatedItem.total));
+        _repository.updateDownloadItemEntity(observableItemList[index].value);
+        // _mainScreenStateSubject.add(
+        //   MainScreenState(
+        //     observableItemList: observableItemList,
+        //   ),
+        // );
       }
     });
+  }
+
+  void refreshList() {
+    _mainScreenStateSubject.add(
+      MainScreenState(
+        observableItemList: observableItemList,
+      ),
+    );
   }
 
   final _mainScreenStateSubject = BehaviorSubject();
@@ -208,11 +218,7 @@ class MainScreenBloc {
     // var item =
     //     observableItemList.where((element) => element.taskId == id).toList()[0];
     // _repository.updateDownloadItemEntity(item);
-    _mainScreenStateSubject.add(
-      MainScreenState(
-        observableItemList: observableItemList,
-      ),
-    );
+    refreshList();
   }
 
   void onItemRemoveClicked(int taskId) {

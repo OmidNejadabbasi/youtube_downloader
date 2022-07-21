@@ -3,7 +3,7 @@ import 'package:youtube_downloader/domain/entities/download_item.dart';
 
 class MainScreenState {
 
-  final List<DownloadItemEntity> observableItemList;
+  final List<BehaviorSubject<DownloadItemEntity>> observableItemList;
 
   MainScreenState({required this.observableItemList, });
 

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:badges/badges.dart';
 import 'package:fetchme/fetchme.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
@@ -107,9 +108,9 @@ class _MainScreenState extends State<MainScreen> {
                         var itemList = (state as MainScreenState)
                             .observableItemList
                             .where((element) => _isCompletedTabSelected
-                                ? element.status ==
+                                ? element.value.status ==
                                     DownloadTaskStatus.complete.value
-                                : element.status !=
+                                : element.value.status !=
                                     DownloadTaskStatus.complete.value)
                             .toList();
                         completedCount = _isCompletedTabSelected
@@ -225,40 +226,50 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildMainList(
-      BuildContext context, List<DownloadItemEntity> itemList) {
+  Widget _buildMainList(BuildContext context,
+      List<BehaviorSubject<DownloadItemEntity>> itemList) {
     return ListView.builder(
       itemCount: itemList.length,
       itemBuilder: (context, index) {
-        var isSelected = selectedIDs.contains(itemList[index].id!);
-        return GestureDetector(
-          onTap: () {
-            if (isInSelectMode) {
-              if (isSelected) {
-                selectedIDs.remove(itemList[index].id!);
-              } else {
-                selectedIDs.add(itemList[index].id!);
+        return StreamBuilder(
+            key: ValueKey(itemList[index].value.id!),
+            stream: itemList[index],
+            builder: (context, AsyncSnapshot<DownloadItemEntity> snapshot) {
+              if (snapshot.data == null){
+                return SizedBox();
               }
-              return;
-            }
-            if (itemList[index].status == DownloadTaskStatus.complete.value) {
-              _bloc.onItemOpenClicked(itemList[index].taskId!);
-            }
-          },
-          onLongPress: () {
-            if (isInSelectMode) {
-              return;
-            }
-            selectedIDs.add(itemList[index].id!);
-          },
-          child: DownloadItemListTile(
-            downloadItem: itemList[index],
-            onPause: _bloc.onItemPauseClicked,
-            onResume: _bloc.onItemResumeClicked,
-            onRetry: _bloc.onItemRetryClicked,
-            isSelected: isSelected,
-          ),
-        );
+              print("build of item");
+              var isSelected = selectedIDs.contains(snapshot.data!.id);
+              return GestureDetector(
+                onTap: () {
+                  if (isInSelectMode) {
+                    if (isSelected) {
+                      selectedIDs.remove(snapshot.data!.id!);
+                    } else {
+                      selectedIDs.add(snapshot.data!.id!);
+                    }
+                    return;
+                  }
+                  if (snapshot.data!.status ==
+                      DownloadTaskStatus.complete.value) {
+                    _bloc.onItemOpenClicked(snapshot.data!.taskId!);
+                  }
+                },
+                onLongPress: () {
+                  if (isInSelectMode) {
+                    return;
+                  }
+                  selectedIDs.add(snapshot.data!.id!);
+                },
+                child: DownloadItemListTile(
+                  downloadItem: snapshot.data!,
+                  onPause: _bloc.onItemPauseClicked,
+                  onResume: _bloc.onItemResumeClicked,
+                  onRetry: _bloc.onItemRetryClicked,
+                  isSelected: isSelected,
+                ),
+              );
+            });
       },
     );
   }
