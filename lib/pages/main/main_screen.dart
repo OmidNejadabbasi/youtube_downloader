@@ -1,11 +1,11 @@
 import 'dart:ui';
 
+import 'package:badges/badges.dart';
+import 'package:fetchme/fetchme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
-import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_events.dart';
 import 'package:youtube_downloader/pages/main/main_screeen_events.dart';
 import 'package:youtube_downloader/pages/main/main_screen_bloc.dart';
 import 'package:youtube_downloader/shared/widgets/download_item_list_tile.dart';
@@ -25,6 +25,8 @@ class _MainScreenState extends State<MainScreen> {
   late MainScreenBloc _bloc;
   bool isStoragePermissionGranted = false;
   bool _isCompletedTabSelected = true;
+  int completedCount = 0;
+  int queueCount = 0;
 
   @override
   void initState() {
@@ -65,7 +67,8 @@ class _MainScreenState extends State<MainScreen> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   boxShadow: [
-                    BoxShadow(color: Colors.black12, spreadRadius: -2, blurRadius: 5),
+                    BoxShadow(
+                        color: Colors.black12, spreadRadius: -2, blurRadius: 5),
                   ],
                 ),
                 child: Row(
@@ -107,6 +110,14 @@ class _MainScreenState extends State<MainScreen> {
                                 : element.status !=
                                     DownloadTaskStatus.complete.value)
                             .toList();
+                        var completed = (state)
+                            .observableItemList
+                            .where((element) =>
+                                element.status ==
+                                DownloadTaskStatus.complete.value)
+                            .toList();
+                        completedCount = completed.length;
+                        queueCount = state.observableItemList.length - completedCount;
                         if (itemList.isNotEmpty) {
                           return _buildMainList(context, itemList);
                         } else {
@@ -174,14 +185,24 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
         currentIndex: _isCompletedTabSelected ? 1 : 0,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.stop_circle_outlined),
+            icon: Badge(
+              child: const Icon(Icons.stop_circle_outlined),
+              badgeContent:
+                  Text(queueCount.toString(), style: Styles.labelTextStyle),
+              badgeColor: Colors.yellow.shade400,
+            ),
             label: "Queue",
           ),
           BottomNavigationBarItem(
+            icon: Badge(
+              child: const Icon(Icons.done),
+              badgeContent:
+                  Text(completedCount.toString(), style: Styles.labelTextStyle),
+              badgeColor: Colors.greenAccent.shade200,
+            ),
             label: "Completed",
-            icon: Icon(Icons.done_all),
           ),
         ],
       ),
