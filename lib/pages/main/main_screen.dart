@@ -74,25 +74,67 @@ class _MainScreenState extends State<MainScreen> {
                         color: Colors.black12, spreadRadius: -2, blurRadius: 5),
                   ],
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    NIconButton(
-                      icon: Icons.menu,
-                      onPressed: () {},
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'Youtube Downloader',
-                        textAlign: TextAlign.center,
-                        style: Styles.appTitleStyle,
-                      ),
-                    ),
-                    NIconButton(
-                      icon: Icons.search,
-                      onPressed: () {},
-                    ),
-                  ],
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) {
+                    return SlideTransition(
+                      position: animation.drive(Tween<Offset>(
+                        begin: const Offset(0, 1),
+                        end: Offset.zero,
+                      )),
+                      child: child,
+                    );
+                  },
+                  child: !isInSelectMode
+                      ? Row(
+                          key: const ValueKey(1),
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            NIconButton(
+                              icon: Icons.menu,
+                              onPressed: () {},
+                            ),
+                            const Expanded(
+                              child: Text(
+                                'Youtube Downloader',
+                                textAlign: TextAlign.center,
+                                style: Styles.appTitleStyle,
+                              ),
+                            ),
+                            NIconButton(
+                              icon: Icons.search,
+                              onPressed: () {},
+                            ),
+                          ],
+                        )
+                      : Row(
+                          key: const ValueKey(2),
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: NIconButton(
+                                  icon: Icons.arrow_back,
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedIDs.clear();
+                                      isInSelectMode = false;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            NIconButton(
+                              icon: Icons.delete,
+                              onPressed: () {},
+                            ),
+                            NIconButton(
+                              icon: Icons.select_all,
+                              onPressed: () {},
+                            ),
+                          ],
+                        ),
                 ),
               ),
               const SizedBox(height: 0),
@@ -180,33 +222,47 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (value) {
-          setState(() {
-            _isCompletedTabSelected = value == 1;
-          });
+      bottomNavigationBar: AnimatedSwitcher(
+        transitionBuilder: (child, animation) {
+          return SlideTransition(
+            position: animation.drive(Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            )),
+            child: child,
+          );
         },
-        currentIndex: _isCompletedTabSelected ? 1 : 0,
-        items: [
-          BottomNavigationBarItem(
-            icon: Badge(
-              child: const Icon(Icons.stop_circle_outlined),
-              badgeContent:
-                  Text(queueCount.toString(), style: Styles.labelTextStyle),
-              badgeColor: Colors.yellow.shade400,
-            ),
-            label: "Queue",
-          ),
-          BottomNavigationBarItem(
-            icon: Badge(
-              child: const Icon(Icons.done),
-              badgeContent:
-                  Text(completedCount.toString(), style: Styles.labelTextStyle),
-              badgeColor: Colors.greenAccent.shade200,
-            ),
-            label: "Completed",
-          ),
-        ],
+        duration: const Duration(milliseconds: 250),
+        child: isInSelectMode
+            ? const SizedBox()
+            : BottomNavigationBar(
+                onTap: (value) {
+                  setState(() {
+                    _isCompletedTabSelected = value == 1;
+                  });
+                },
+                currentIndex: _isCompletedTabSelected ? 1 : 0,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Badge(
+                      child: const Icon(Icons.stop_circle_outlined),
+                      badgeContent: Text(queueCount.toString(),
+                          style: Styles.labelTextStyle),
+                      badgeColor: Colors.yellow.shade400,
+                    ),
+                    label: "Queue",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Badge(
+                      child: const Icon(Icons.done),
+                      badgeContent: Text(completedCount.toString(),
+                          style: Styles.labelTextStyle),
+                      badgeColor: Colors.greenAccent.shade200,
+                    ),
+                    label: "Completed",
+                  ),
+                ],
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
