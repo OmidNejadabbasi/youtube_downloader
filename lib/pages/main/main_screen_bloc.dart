@@ -17,6 +17,10 @@ import 'main_screen_states.dart';
 class MainScreenBloc {
   late DownloadItemRepository _repository;
   List<BehaviorSubject<DownloadItemEntity>> observableItemList = [];
+
+  List<DownloadItemEntity> get itemList =>
+      observableItemList.map((e) => e.value).toList();
+
   bool _permissionReady = false;
   late String _localPath;
 
@@ -220,7 +224,7 @@ class MainScreenBloc {
     // _repository.updateDownloadItemEntity(item);
   }
 
-  void onItemRemoveClicked(int taskId) async{
+  void onItemRemoveClicked(int taskId) async {
     await Fetchme.delete(id: taskId);
   }
 

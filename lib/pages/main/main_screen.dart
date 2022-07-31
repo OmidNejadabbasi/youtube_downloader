@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
+import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_items_dialog.dart';
+import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_mode.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
 import 'package:youtube_downloader/pages/main/main_screeen_events.dart';
 import 'package:youtube_downloader/pages/main/main_screen_bloc.dart';
@@ -127,7 +129,23 @@ class _MainScreenState extends State<MainScreen> {
                             ),
                             NIconButton(
                               icon: Icons.delete,
-                              onPressed: () {},
+                              onPressed: () async {
+                                DeleteMode deleteItemsConfirmed =
+                                    await showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          int totalSize = 0;
+                                          return DeleteItemsDialog(
+                                            files: selectedIDs.map((e) {
+                                              var itm = _bloc.itemList.firstWhere((element) => element.id == e);
+                                              totalSize += itm.size;
+                                              return [itm.title, itm.size];
+                                            }).toList(),
+                                            totalSize: totalSize,
+                                          );
+                                        });
+                                print("delete mode "+deleteItemsConfirmed.toString());
+                              },
                             ),
                             NIconButton(
                               icon: Icons.select_all,

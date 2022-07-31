@@ -36,6 +36,7 @@ dependencies:
   path: ^1.8.0
 
   rxdart:
+  intl:
   youtube_explode_dart:
 
   get_it:
