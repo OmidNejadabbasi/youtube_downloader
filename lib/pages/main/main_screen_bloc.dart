@@ -43,7 +43,7 @@ class MainScreenBloc {
       } else if (event.runtimeType == AddDownloadItemEvent) {
         final evt = event as AddDownloadItemEvent;
         //
-        String fileName = evt.entity.title.replaceAll(RegExp(r"/"), "-") +
+        String fileName = evt.entity.title.replaceAll(RegExp(r'[/|<>*\?":]'), "-") +
             "-" +
             evt.entity.fps +
             '.mp4';
@@ -60,13 +60,14 @@ class MainScreenBloc {
         // await _repository
         //     .insertDownloadItemEntity(evt.entity.copyWith(taskId: taskId));
 
-        int newId =
+        int newTaskId =
             await Fetchme.enqueue(evt.entity.link, _localPath, fileName);
 
-        var itemEntity = evt.entity.copyWith(taskId: newId);
+        var itemEntity = evt.entity.copyWith(taskId: newTaskId);
+        var newId = await _repository.insertDownloadItemEntity(itemEntity);
+        itemEntity = itemEntity.copyWith(id: newId);
         observableItemList.add(BehaviorSubject.seeded(itemEntity));
         refreshList();
-        _repository.insertDownloadItemEntity(itemEntity);
       }
     });
     //   IsolateNameServer.registerPortWithName(
