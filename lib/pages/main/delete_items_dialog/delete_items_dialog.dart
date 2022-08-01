@@ -33,20 +33,30 @@ class _DeleteItemsDialogState extends State<DeleteItemsDialog> {
                 children: List.generate(
                   widget.files.length,
                   (index) => Row(
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
-                        children: [
-                          const SizedBox(height: 8),
-                          Text(widget.files[index][0],
-                              style: Styles.labelTextStyle),
-                          Text(humanReadableByteCountBin(widget.files[index][1]),
-                              style: Styles.labelTextStyle),
-                        ],
+                          children: [
+                            const SizedBox(height: 8),
+                            Text(widget.files[index][0],
+                                maxLines: 1,
+                                style: Styles.labelTextStyle),
+                            Text("Size on disk:  " + humanReadableByteCountBin(widget.files[index][1]),
+                                style: Styles.labelTextStyle),
+                            const Divider(
+                              indent: 3,
+                                thickness: 0,
+                                height: 6,
+                                color: Colors.black12,
+                            )
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 12),
                     ],
                   ),
                 ),

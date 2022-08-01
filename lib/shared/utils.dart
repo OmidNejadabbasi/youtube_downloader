@@ -1,9 +1,13 @@
 import 'package:intl/intl.dart';
 
 String humanReadableByteCountBin(int bytes) {
-  int absB = bytes <0 ?-bytes:bytes;
+  int absB = bytes;
+  if (absB < 0) {
+    return "0 B";
+  }
+
   if (absB < 1024) {
-    return bytes.toString() + " B";
+    return absB.toString() + " B";
   }
   int value = absB;
   int counter = 0;

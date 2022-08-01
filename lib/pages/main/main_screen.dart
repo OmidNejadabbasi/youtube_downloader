@@ -144,7 +144,18 @@ class _MainScreenState extends State<MainScreen> {
                                             totalSize: totalSize,
                                           );
                                         });
-                                print("delete mode "+deleteItemsConfirmed.toString());
+                                switch(deleteItemsConfirmed){
+
+                                  case DeleteMode.delete:
+                                    // TODO: Handle this case.
+                                    break;
+                                  case DeleteMode.remove:
+                                    // TODO: Handle this case.
+                                    break;
+                                  case DeleteMode.abort:
+                                    // TODO: Handle this case.
+                                    break;
+                                }
                               },
                             ),
                             NIconButton(

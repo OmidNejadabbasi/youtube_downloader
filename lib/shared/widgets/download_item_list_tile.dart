@@ -3,6 +3,7 @@ import 'package:fetchme/fetchme.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/shared/styles.dart';
+import 'package:youtube_downloader/shared/utils.dart';
 
 class DownloadItemListTile extends StatelessWidget {
   final DownloadItemEntity downloadItem;
@@ -35,24 +36,22 @@ class DownloadItemListTile extends StatelessWidget {
           Stack(children: [
             CachedNetworkImage(
               imageUrl: downloadItem.thumbnailLink,
-              imageBuilder: (context, provider) =>
-                  Container(
-                    width: 100,
-                    height: 75,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: provider,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-              placeholder: (context, provider) =>
-                  Image.asset(
-                    'assets/images/placeholder.jpeg',
-                    width: 100,
-                    height: 75,
+              imageBuilder: (context, provider) => Container(
+                width: 100,
+                height: 75,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: provider,
                     fit: BoxFit.cover,
                   ),
+                ),
+              ),
+              placeholder: (context, provider) => Image.asset(
+                'assets/images/placeholder.jpeg',
+                width: 100,
+                height: 75,
+                fit: BoxFit.cover,
+              ),
             ),
             Positioned(
               bottom: 0,
@@ -65,13 +64,14 @@ class DownloadItemListTile extends StatelessWidget {
                     backgroundColor: Colors.black38, color: Colors.white70),
               ),
             ),
-            !isSelected ? const SizedBox() :
-                Container(
-                  width: 100,
-                  height: 75,
-                  color: Colors.cyan.withAlpha(100),
-                  child: const Icon(Icons.done_outline, size: 42),
-                )
+            !isSelected
+                ? const SizedBox()
+                : Container(
+                    width: 100,
+                    height: 75,
+                    color: Colors.cyan.withAlpha(100),
+                    child: const Icon(Icons.done_outline, size: 42),
+                  )
           ]),
           Expanded(
             child: Padding(
@@ -95,11 +95,9 @@ class DownloadItemListTile extends StatelessWidget {
                               color: Colors.white, fontSize: 12),
                         ),
                         decoration: BoxDecoration(
-                            color: Theme
-                                .of(context)
-                                .primaryColor,
+                            color: Theme.of(context).primaryColor,
                             borderRadius:
-                            const BorderRadius.all(Radius.circular(3))),
+                                const BorderRadius.all(Radius.circular(3))),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -129,15 +127,23 @@ class DownloadItemListTile extends StatelessWidget {
                   //             '%'),
                   downloadItem.isCompleted()
                       ? const SizedBox()
-                      : LinearProgressIndicator(
-                    minHeight: 8,
-                    backgroundColor: Colors.black12,
-                    color: downloadItem.status ==
-                        DownloadTaskStatus.complete.value
-                        ? Colors.green
-                        : Colors.blue,
-                    value: (downloadItem.downloaded / downloadItem.size),
-                  )
+                      : Stack(children: [
+                          LinearProgressIndicator(
+                            minHeight: 11.7,
+                            backgroundColor: Colors.black12,
+                            color: downloadItem.status ==
+                                    DownloadTaskStatus.complete.value
+                                ? Colors.green
+                                : Colors.blue,
+                            value:
+                                (downloadItem.downloaded / downloadItem.size),
+                          ),
+                          Text(
+                            ' ${humanReadableByteCountBin(downloadItem.downloaded)}/' +
+                                (downloadItem.size == -1 ? ' ?' : humanReadableByteCountBin(downloadItem.size)),
+                            style: Styles.labelTextStyle.copyWith(fontSize: 10),
+                          )
+                        ])
                 ],
               ),
             ),
@@ -151,18 +157,18 @@ class DownloadItemListTile extends StatelessWidget {
     var icon = downloadItem.status == DownloadTaskStatus.paused.value
         ? Icons.play_arrow
         : downloadItem.status == DownloadTaskStatus.complete.value
-        ? Icons.check
-        : downloadItem.status == DownloadTaskStatus.failed.value
-        ? Icons.restart_alt
-        : Icons.pause;
+            ? Icons.check
+            : downloadItem.status == DownloadTaskStatus.failed.value
+                ? Icons.restart_alt
+                : Icons.pause;
 
     var color = downloadItem.status == DownloadTaskStatus.paused.value
         ? Colors.green
         : downloadItem.status == DownloadTaskStatus.complete.value
-        ? Colors.greenAccent
-        : downloadItem.status == DownloadTaskStatus.failed.value
-        ? Colors.amber
-        : Colors.black45;
+            ? Colors.greenAccent
+            : downloadItem.status == DownloadTaskStatus.failed.value
+                ? Colors.amber
+                : Colors.black45;
 
     return InkWell(
       child: Padding(
