@@ -9,7 +9,7 @@ import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_items_dialog.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_mode.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
-import 'package:youtube_downloader/pages/main/main_screeen_events.dart';
+import 'package:youtube_downloader/pages/main/main_screen_events.dart';
 import 'package:youtube_downloader/pages/main/main_screen_bloc.dart';
 import 'package:youtube_downloader/shared/widgets/download_item_list_tile.dart';
 

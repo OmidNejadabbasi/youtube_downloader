@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/domain/repository/download_item_repository.dart';
-import 'package:youtube_downloader/pages/main/main_screeen_events.dart';
+import 'package:youtube_downloader/pages/main/main_screen_events.dart';
 
 import 'main_screen_states.dart';
 
