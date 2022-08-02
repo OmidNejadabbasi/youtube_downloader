@@ -27,4 +27,8 @@ class DownloadItemRepository {
   void updateDownloadItemEntity(DownloadItemEntity value) async {
     await db.updateDownloadItem(DownloadItemMapper.mapToDownloadItem(value));
   }
+
+  void deleteItems(List<int> ids) async{
+    await db.deleteItems(ids);
+  }
 }

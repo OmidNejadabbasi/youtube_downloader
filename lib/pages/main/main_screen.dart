@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:fetchme/fetchme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/dependency_container.dart';
@@ -9,8 +10,8 @@ import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_items_dialog.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_mode.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
-import 'package:youtube_downloader/pages/main/main_screen_events.dart';
 import 'package:youtube_downloader/pages/main/main_screen_bloc.dart';
+import 'package:youtube_downloader/pages/main/main_screen_events.dart';
 import 'package:youtube_downloader/shared/widgets/download_item_list_tile.dart';
 
 import '../../shared/styles.dart';
@@ -30,8 +31,6 @@ class _MainScreenState extends State<MainScreen> {
   bool _isCompletedTabSelected = true;
   Set<int> selectedIDs = {};
   bool isInSelectMode = false;
-  int completedCount = 0;
-  int queueCount = 0;
 
   @override
   void initState() {
@@ -137,23 +136,28 @@ class _MainScreenState extends State<MainScreen> {
                                           int totalSize = 0;
                                           return DeleteItemsDialog(
                                             files: selectedIDs.map((e) {
-                                              var itm = _bloc.itemList.firstWhere((element) => element.id == e);
+                                              var itm = _bloc.itemList
+                                                  .firstWhere((element) =>
+                                                      element.id == e);
                                               totalSize += itm.size;
                                               return [itm.title, itm.size];
                                             }).toList(),
                                             totalSize: totalSize,
                                           );
                                         });
-                                switch(deleteItemsConfirmed){
-
+                                switch (deleteItemsConfirmed) {
                                   case DeleteMode.delete:
-                                    // TODO: Handle this case.
+                                    _bloc.eventSink.add(DeleteDownloadsEvent(
+                                        deleteMode: DeleteMode.delete,
+                                        idsToBeDeleted: selectedIDs.toList()));
                                     break;
                                   case DeleteMode.remove:
-                                    // TODO: Handle this case.
+                                    _bloc.eventSink.add(DeleteDownloadsEvent(
+                                        deleteMode: DeleteMode.remove,
+                                        idsToBeDeleted: selectedIDs.toList()));
                                     break;
                                   case DeleteMode.abort:
-                                    // TODO: Handle this case.
+                                    // :)
                                     break;
                                 }
                               },
@@ -184,13 +188,14 @@ class _MainScreenState extends State<MainScreen> {
                                 : element.value.status !=
                                     DownloadTaskStatus.complete.value)
                             .toList();
-                        completedCount = _isCompletedTabSelected
+                        _bloc.completedCount.value = _isCompletedTabSelected
                             ? itemList.length
                             : -itemList.length +
                                 state.observableItemList.length;
 
-                        queueCount =
-                            state.observableItemList.length - completedCount;
+                        _bloc.queueCount.value =
+                            state.observableItemList.length -
+                                _bloc.completedCount.value;
                         if (itemList.isNotEmpty) {
                           return _buildMainList(context, itemList);
                         } else {
@@ -273,20 +278,26 @@ class _MainScreenState extends State<MainScreen> {
                 currentIndex: _isCompletedTabSelected ? 1 : 0,
                 items: [
                   BottomNavigationBarItem(
-                    icon: Badge(
-                      child: const Icon(Icons.stop_circle_outlined),
-                      badgeContent: Text(queueCount.toString(),
-                          style: Styles.labelTextStyle),
-                      badgeColor: Colors.yellow.shade400,
+                    icon: StreamBuilder(
+                      stream: _bloc.queueCount,
+                      builder: (context, snapshot) => Badge(
+                        child: const Icon(Icons.done),
+                        badgeContent: Text(snapshot.data.toString(),
+                            style: Styles.labelTextStyle),
+                        badgeColor: Colors.greenAccent.shade200,
+                      ),
                     ),
                     label: "Queue",
                   ),
                   BottomNavigationBarItem(
-                    icon: Badge(
-                      child: const Icon(Icons.done),
-                      badgeContent: Text(completedCount.toString(),
-                          style: Styles.labelTextStyle),
-                      badgeColor: Colors.greenAccent.shade200,
+                    icon: StreamBuilder(
+                      stream: _bloc.completedCount,
+                      builder: (context, snapshot) => Badge(
+                        child: const Icon(Icons.done),
+                        badgeContent: Text(snapshot.data.toString(),
+                            style: Styles.labelTextStyle),
+                        badgeColor: Colors.greenAccent.shade200,
+                      ),
                     ),
                     label: "Completed",
                   ),

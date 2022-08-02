@@ -5,11 +5,13 @@ import 'dart:ui';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:device_info/device_info.dart';
 import 'package:fetchme/fetchme.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/domain/repository/download_item_repository.dart';
+import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_mode.dart';
 import 'package:youtube_downloader/pages/main/main_screen_events.dart';
 
 import 'main_screen_states.dart';
@@ -20,6 +22,8 @@ class MainScreenBloc {
 
   List<DownloadItemEntity> get itemList =>
       observableItemList.map((e) => e.value).toList();
+  BehaviorSubject<int> completedCount = BehaviorSubject.seeded(0);
+  BehaviorSubject<int> queueCount = BehaviorSubject.seeded(0);
 
   bool _permissionReady = false;
   late String _localPath;
@@ -43,10 +47,11 @@ class MainScreenBloc {
       } else if (event.runtimeType == AddDownloadItemEvent) {
         final evt = event as AddDownloadItemEvent;
         //
-        String fileName = evt.entity.title.replaceAll(RegExp(r'[/|<>*\?":]'), "-") +
-            "-" +
-            evt.entity.fps +
-            '.mp4';
+        String fileName =
+            evt.entity.title.replaceAll(RegExp(r'[/|<>*\?":]'), "-") +
+                "-" +
+                evt.entity.fps +
+                '.mp4';
         int counter = 1;
         while (File(_localPath + "/" + fileName).existsSync()) {
           fileName = evt.entity.title + "-" + evt.entity.fps + '($counter).mp4';
@@ -68,8 +73,22 @@ class MainScreenBloc {
         itemEntity = itemEntity.copyWith(id: newId);
         observableItemList.add(BehaviorSubject.seeded(itemEntity));
         refreshList();
+      } else if (event.runtimeType == DeleteDownloadsEvent) {
+        final evt = event as DeleteDownloadsEvent;
+        if (evt.deleteMode == DeleteMode.delete) {
+          evt.idsToBeDeleted.forEach((element) {
+            Fetchme.delete(id: element);
+          });
+          deleteItems(evt);
+        } else if (evt.deleteMode == DeleteMode.remove) {
+          evt.idsToBeDeleted.forEach((element) {
+            Fetchme.remove(id: element);
+          });
+          deleteItems(evt);
+        }
       }
     });
+
     //   IsolateNameServer.registerPortWithName(
     //       _port.sendPort, 'downloader_send_port');
     //   _port.listen((dynamic data) {
@@ -113,6 +132,12 @@ class MainScreenBloc {
     });
   }
 
+  void deleteItems(DeleteDownloadsEvent evt) {
+    _repository.deleteItems(evt.idsToBeDeleted);
+    observableItemList.removeWhere((element) => evt.idsToBeDeleted.contains(element.value.id));
+    refreshList();
+  }
+
   void refreshList() {
     _mainScreenStateSubject.add(
       MainScreenState(
@@ -128,14 +153,14 @@ class MainScreenBloc {
 
   Stream get mainScreenState => _mainScreenStateSubject.stream;
 
-  // @pragma('vm:entry-point')
-  // static void downloadCallback(
-  //     String id, DownloadTaskStatus status, int progress) {
-  //   final SendPort send =
-  //       IsolateNameServer.lookupPortByName('downloader_send_port')!;
-  //   send.send([id, status, progress]);
-  //   print('download callback triggered');
-  // }
+// @pragma('vm:entry-point')
+// static void downloadCallback(
+//     String id, DownloadTaskStatus status, int progress) {
+//   final SendPort send =
+//       IsolateNameServer.lookupPortByName('downloader_send_port')!;
+//   send.send([id, status, progress]);
+//   print('download callback triggered');
+// }
 
   Future<void> _prepare() async {
     _permissionReady = await _checkPermission();

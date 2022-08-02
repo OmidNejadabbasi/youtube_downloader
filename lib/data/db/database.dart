@@ -30,6 +30,10 @@ class AppDatabase extends _$AppDatabase {
   Future<void> updateDownloadItem(DownloadItemsCompanion item) {
     return update(downloadItems).replace(item);
   }
+  
+  Future<void> deleteItems(List<int> ids){
+    return (delete(downloadItems)..where((tbl) => tbl.id.isIn(ids))).go();
+  }
 }
 
 LazyDatabase _openConnection() {
