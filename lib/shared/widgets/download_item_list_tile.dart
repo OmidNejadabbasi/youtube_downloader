@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/shared/styles.dart';
 import 'package:youtube_downloader/shared/utils.dart';
+import 'package:youtube_downloader/shared/widgets/icon_button.dart';
 
 class DownloadItemListTile extends StatelessWidget {
   final DownloadItemEntity downloadItem;
@@ -140,7 +141,10 @@ class DownloadItemListTile extends StatelessWidget {
                           ),
                           Text(
                             ' ${humanReadableByteCountBin(downloadItem.downloaded)}/' +
-                                (downloadItem.size == -1 ? ' ?' : humanReadableByteCountBin(downloadItem.size)),
+                                (downloadItem.size == -1
+                                    ? ' ?'
+                                    : humanReadableByteCountBin(
+                                        downloadItem.size)),
                             style: Styles.labelTextStyle.copyWith(fontSize: 10),
                           )
                         ])
@@ -153,14 +157,14 @@ class DownloadItemListTile extends StatelessWidget {
     );
   }
 
-  InkWell buildActionButton() {
+  Widget buildActionButton() {
     var icon = downloadItem.status == DownloadTaskStatus.paused.value
         ? Icons.play_arrow
         : downloadItem.status == DownloadTaskStatus.complete.value
             ? Icons.check
             : downloadItem.status == DownloadTaskStatus.failed.value
                 ? Icons.restart_alt
-                : Icons.pause;
+                : Icons.warning_rounded;
 
     var color = downloadItem.status == DownloadTaskStatus.paused.value
         ? Colors.green
@@ -170,25 +174,27 @@ class DownloadItemListTile extends StatelessWidget {
                 ? Colors.amber
                 : Colors.black45;
 
-    return InkWell(
-      child: Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Icon(
-          icon,
-          color: color,
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: NIconButton(
+        padding: 2.0,
+        icon: icon,
+        onPressed: icon == Icons.warning_rounded
+            ? null
+            : () {
+                if (downloadItem.status == null) return;
+                if (downloadItem.status == DownloadTaskStatus.running.value) {
+                  onPause(downloadItem.taskId!);
+                } else if (downloadItem.status ==
+                    DownloadTaskStatus.paused.value) {
+                  onResume(downloadItem.taskId!);
+                } else if (downloadItem.status ==
+                        DownloadTaskStatus.canceled.value ||
+                    downloadItem.status == DownloadTaskStatus.failed.value) {
+                  onRetry(downloadItem.taskId!);
+                }
+              },
       ),
-      onTap: () {
-        if (downloadItem.status == null) return;
-        if (downloadItem.status == DownloadTaskStatus.running.value) {
-          onPause(downloadItem.taskId!);
-        } else if (downloadItem.status == DownloadTaskStatus.paused.value) {
-          onResume(downloadItem.taskId!);
-        } else if (downloadItem.status == DownloadTaskStatus.canceled.value ||
-            downloadItem.status == DownloadTaskStatus.failed.value) {
-          onRetry(downloadItem.taskId!);
-        }
-      },
     );
   }
 }

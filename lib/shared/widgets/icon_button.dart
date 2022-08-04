@@ -6,6 +6,8 @@ class NIconButton extends StatelessWidget {
   final Color? iconColor;
   final Color? rippleColor;
   final double iconSize;
+  final double borderRadius;
+  final double padding;
 
   const NIconButton({
     Key? key,
@@ -14,19 +16,25 @@ class NIconButton extends StatelessWidget {
     this.iconColor = Colors.black87,
     this.rippleColor,
     this.iconSize = 24,
+    this.borderRadius = 6,
+    this.padding = 8.0,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Icon(icon, color: iconColor, size: iconSize),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        child: Padding(
+
+          padding: EdgeInsets.all(padding),
+          child: Icon(icon, size: iconSize),
+        ),
+        onTap: onPressed,
+        customBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(borderRadius))),
+        splashColor: rippleColor ?? Colors.tealAccent,
       ),
-      onTap: onPressed,
-      customBorder: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(6))),
-      splashColor: rippleColor ?? Colors.tealAccent,
     );
   }
 }

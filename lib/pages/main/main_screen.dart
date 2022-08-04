@@ -106,8 +106,9 @@ class _MainScreenState extends State<MainScreen> {
                           children: [
                             NIconButton(
                               icon: Icons.menu,
+                              borderRadius: 100,
+                              padding: 12,
                               onPressed: () {},
-                              rippleColor: Colors.red,
                             ),
                             const Expanded(
                               child: Text(
@@ -117,6 +118,7 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                             ),
                             NIconButton(
+                              borderRadius: 100,
                               icon: Icons.search,
                               onPressed: () {},
                             ),
