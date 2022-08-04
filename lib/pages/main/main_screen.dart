@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:fetchme/fetchme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/dependency_container.dart';
@@ -31,6 +31,8 @@ class _MainScreenState extends State<MainScreen> {
   bool _isCompletedTabSelected = true;
   Set<int> selectedIDs = {};
   bool isInSelectMode = false;
+
+  StreamSubscription<String>? errorSubscription;
 
   @override
   void initState() {
@@ -65,6 +67,17 @@ class _MainScreenState extends State<MainScreen> {
           ),
           child: Column(
             children: [
+              StreamBuilder(
+                builder: (context, snapshot) {
+                  errorSubscription = errorSubscription ?? _bloc.errorStream.stream.listen((value) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(value),
+                      duration: const Duration(milliseconds: 1000),
+                    ));
+                  });
+                  return const SizedBox();
+                },
+              ),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -94,6 +107,7 @@ class _MainScreenState extends State<MainScreen> {
                             NIconButton(
                               icon: Icons.menu,
                               onPressed: () {},
+                              rippleColor: Colors.red,
                             ),
                             const Expanded(
                               child: Text(
@@ -139,8 +153,11 @@ class _MainScreenState extends State<MainScreen> {
                                               var itm = _bloc.itemList
                                                   .firstWhere((element) =>
                                                       element.id == e);
-                                              totalSize += itm.size;
-                                              return [itm.title, itm.size];
+                                              totalSize += itm.downloaded;
+                                              return [
+                                                itm.title,
+                                                itm.downloaded
+                                              ];
                                             }).toList(),
                                             totalSize: totalSize,
                                           );

@@ -14,3 +14,9 @@ class PermissionNotGrantedState {
 
   PermissionNotGrantedState({required this.message});
 }
+
+class ShowErrorWithToast{
+  final String message;
+
+  ShowErrorWithToast({required this.message});
+}

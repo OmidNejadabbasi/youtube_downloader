@@ -5,7 +5,7 @@ import 'dart:ui';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:device_info/device_info.dart';
 import 'package:fetchme/fetchme.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
@@ -24,6 +24,7 @@ class MainScreenBloc {
       observableItemList.map((e) => e.value).toList();
   BehaviorSubject<int> completedCount = BehaviorSubject.seeded(0);
   BehaviorSubject<int> queueCount = BehaviorSubject.seeded(0);
+  PublishSubject<String> errorStream = PublishSubject();
 
   bool _permissionReady = false;
   late String _localPath;
@@ -54,7 +55,10 @@ class MainScreenBloc {
                 '.mp4';
         int counter = 1;
         while (File(_localPath + "/" + fileName).existsSync()) {
-          fileName = evt.entity.title + "-" + evt.entity.fps + '($counter).mp4';
+          fileName = evt.entity.title.replaceAll(RegExp(r'[/|<>*\?":]'), "-") +
+              "-" +
+              evt.entity.fps +
+              '($counter).mp4';
         }
         // var taskId = await FlutterDownloader.enqueue(
         //   url: evt.entity.link,
@@ -134,7 +138,8 @@ class MainScreenBloc {
 
   void deleteItems(DeleteDownloadsEvent evt) {
     _repository.deleteItems(evt.idsToBeDeleted);
-    observableItemList.removeWhere((element) => evt.idsToBeDeleted.contains(element.value.id));
+    observableItemList.removeWhere(
+        (element) => evt.idsToBeDeleted.contains(element.value.id));
     refreshList();
   }
 
@@ -255,7 +260,12 @@ class MainScreenBloc {
   }
 
   void onItemOpenClicked(int taskId) async {
-    // print(await Fetchme.open(taskId: taskId));
+    try {
+      print('openFile');
+      await Fetchme.openFile(id: taskId);
+    } on PlatformException catch (e) {
+      errorStream.add(e.message ?? 'fuck');
+    }
   }
 
   void onItemRetryClicked(int taskId) async {
