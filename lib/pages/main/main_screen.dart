@@ -58,6 +58,28 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 252, 252, 252),
+      drawer: Drawer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).systemGestureInsets.top,
+          ),
+          InkWell(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text(
+                "Folder for files: ",
+                style: Styles.optionLabelText,
+              ),
+              Text(
+                _bloc.appSettings.folderForFiles,
+                style: Styles.optionLabelText.copyWith(color: Colors.teal),
+              ),
+            ]),
+          )
+        ],
+      )),
       body: SafeArea(
         child: Container(
           decoration: const BoxDecoration(
@@ -69,12 +91,13 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               StreamBuilder(
                 builder: (context, snapshot) {
-                  errorSubscription = errorSubscription ?? _bloc.errorStream.stream.listen((value) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(value),
-                      duration: const Duration(milliseconds: 1000),
-                    ));
-                  });
+                  errorSubscription = errorSubscription ??
+                      _bloc.errorStream.stream.listen((value) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(value),
+                          duration: const Duration(milliseconds: 1000),
+                        ));
+                      });
                   return const SizedBox();
                 },
               ),
@@ -223,11 +246,11 @@ class _MainScreenState extends State<MainScreen> {
                             children: [
                               Image.asset(
                                 'assets/images/idea.png',
-                                height: 100,
-                                width: 100,
+                                height: 70,
+                                width: 70,
                                 fit: BoxFit.cover,
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 20),
                               Text(
                                 'No items to show!\nPress the add button to download new items',
                                 style: Styles.labelTextStyle.copyWith(
@@ -237,6 +260,7 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                               const SizedBox(
                                 height: 120,
+                                width: 100000,
                               ),
                             ],
                           );

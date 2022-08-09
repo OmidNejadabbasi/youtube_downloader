@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:youtube_downloader/domain/entities/app_settings.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/domain/repository/download_item_repository.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_mode.dart';
@@ -28,8 +29,10 @@ class MainScreenBloc {
 
   bool _permissionReady = false;
   late String _localPath;
+  late AppSettings appSettings;
 
   MainScreenBloc(DownloadItemRepository repository) {
+    appSettings = AppSettings('/mnt/e/Downloads', 4, false, true);
     _repository = repository;
     _repository.getAllItems().then((value) {
       observableItemList = value.map((e) => BehaviorSubject.seeded(e)).toList();

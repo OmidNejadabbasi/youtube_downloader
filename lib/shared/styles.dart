@@ -13,5 +13,10 @@ class Styles {
       color: Colors.black54
   );
 
+  static const TextStyle optionLabelText= TextStyle(
+      fontSize: 16,
+      color: Colors.black54
+  );
+
   static const Color colorPrimary = Color(0xFF151515);
 }
