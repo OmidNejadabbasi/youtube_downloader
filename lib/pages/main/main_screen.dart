@@ -15,6 +15,7 @@ import 'package:youtube_downloader/pages/main/main_screen_events.dart';
 import 'package:youtube_downloader/shared/widgets/download_item_list_tile.dart';
 
 import '../../shared/styles.dart';
+import '../../shared/widgets/ClickableColumn.dart';
 import '../../shared/widgets/icon_button.dart';
 import 'main_screen_states.dart';
 
@@ -33,6 +34,8 @@ class _MainScreenState extends State<MainScreen> {
   bool isInSelectMode = false;
 
   StreamSubscription<String>? errorSubscription;
+
+  final GlobalKey<ScaffoldState> _key = GlobalKey();
 
   @override
   void initState() {
@@ -57,29 +60,47 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _key,
       backgroundColor: const Color.fromARGB(255, 252, 252, 252),
       drawer: Drawer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).systemGestureInsets.top,
-          ),
-          InkWell(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text(
-                "Folder for files: ",
-                style: Styles.optionLabelText,
-              ),
-              Text(
-                _bloc.appSettings.folderForFiles,
-                style: Styles.optionLabelText.copyWith(color: Colors.teal),
-              ),
-            ]),
-          )
-        ],
-      )),
+          backgroundColor: Colors.white,
+          child: Container(
+            color: Colors.transparent,
+            padding: const EdgeInsets.all(16)
+                .copyWith(top: MediaQuery.of(context).systemGestureInsets.top),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: 35,
+                      height: 35,
+                    ),
+                    SizedBox(width: 5),
+                    const Text(
+                      "Youtube Downloader",
+                      style: Styles.appTitleStyle,
+                    )
+                  ],
+                ),
+                Divider(),
+                ClickableColumn(
+                  children: [
+                    Text(
+                      "Folder for files: ",
+                      style: Styles.optionLabelText.copyWith(fontSize: 18),
+                    ),
+                    Text(
+                      _bloc.appSettings.folderForFiles,
+                      style:
+                          Styles.optionLabelText.copyWith(color: Colors.teal),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          )),
       body: SafeArea(
         child: Container(
           decoration: const BoxDecoration(
@@ -131,7 +152,9 @@ class _MainScreenState extends State<MainScreen> {
                               icon: Icons.menu,
                               borderRadius: 100,
                               padding: 12,
-                              onPressed: () {},
+                              onPressed: () {
+                                _key.currentState!.openDrawer();
+                              },
                             ),
                             const Expanded(
                               child: Text(
