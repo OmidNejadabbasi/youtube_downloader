@@ -112,7 +112,7 @@ class _MainScreenState extends State<MainScreen> {
                       style: Styles.optionLabelText.copyWith(
                           fontSize: 18, color: Colors.black.withOpacity(0.7)),
                     ),
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10),
                     StreamBuilder(
                       stream: _bloc.appSettings,
                       builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
