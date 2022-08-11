@@ -6,6 +6,7 @@ import 'package:fetchme/fetchme.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/dependency_container.dart';
+import 'package:youtube_downloader/domain/entities/app_settings.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_items_dialog.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_mode.dart';
@@ -69,6 +70,7 @@ class _MainScreenState extends State<MainScreen> {
             padding: const EdgeInsets.all(16)
                 .copyWith(top: MediaQuery.of(context).systemGestureInsets.top),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
@@ -77,24 +79,67 @@ class _MainScreenState extends State<MainScreen> {
                       width: 35,
                       height: 35,
                     ),
-                    SizedBox(width: 5),
+                    const SizedBox(width: 5),
                     const Text(
                       "Youtube Downloader",
                       style: Styles.appTitleStyle,
                     )
                   ],
                 ),
-                Divider(),
+                const Divider(),
                 ClickableColumn(
                   children: [
                     Text(
                       "Folder for files: ",
-                      style: Styles.optionLabelText.copyWith(fontSize: 18),
+                      style: Styles.optionLabelText.copyWith(
+                          fontSize: 18, color: Colors.black.withOpacity(0.7)),
                     ),
+                    StreamBuilder(
+                      stream: _bloc.appSettings,
+                      builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
+                          Text(
+                        snapshot.data!.folderForFiles,
+                        style:
+                            Styles.optionLabelText.copyWith(color: Colors.teal),
+                      ),
+                    ),
+                  ],
+                ),
+                ClickableColumn(
+                  children: [
                     Text(
-                      _bloc.appSettings.folderForFiles,
-                      style:
-                          Styles.optionLabelText.copyWith(color: Colors.teal),
+                      "Simultaneous downloads:",
+                      style: Styles.optionLabelText.copyWith(
+                          fontSize: 18, color: Colors.black.withOpacity(0.7)),
+                    ),
+                    SizedBox(height: 10,),
+                    StreamBuilder(
+                      stream: _bloc.appSettings,
+                      builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
+                          Row(
+                        children: [
+                          Expanded(
+                            child: SliderTheme(
+                              data: SliderThemeData(
+                                  overlayShape: SliderComponentShape.noThumb
+                              ),
+                              child: Slider(
+                                min: 1,
+                                max: 10,
+                                value: (snapshot.data!.simultaneousDownloads)
+                                    .ceil()
+                                    .toDouble(),
+                                onChanged: (val) {
+                                  _bloc.appSettings.value =
+                                      _bloc.appSettings.value.copyWith(
+                                          simultaneousDownloads: val.floor());
+                                },
+                              ),
+                            ),
+                          ),
+                          Text(snapshot.data!.simultaneousDownloads.toString())
+                        ],
+                      ),
                     ),
                   ],
                 ),

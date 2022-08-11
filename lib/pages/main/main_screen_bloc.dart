@@ -29,10 +29,13 @@ class MainScreenBloc {
 
   bool _permissionReady = false;
   late String _localPath;
-  late AppSettings appSettings;
+  BehaviorSubject<AppSettings> appSettings = BehaviorSubject.seeded(AppSettings(
+      folderForFiles: '/mnt/e/Downloads',
+      simultaneousDownloads: 4,
+      onlyWiFi: false,
+      sendNotificationOnlyWhenFinished: true));
 
   MainScreenBloc(DownloadItemRepository repository) {
-    appSettings = AppSettings('/mnt/e/Downloads', 4, false, true);
     _repository = repository;
     _repository.getAllItems().then((value) {
       observableItemList = value.map((e) => BehaviorSubject.seeded(e)).toList();
