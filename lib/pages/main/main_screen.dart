@@ -91,7 +91,7 @@ class _MainScreenState extends State<MainScreen> {
                   children: [
                     Text(
                       "Folder for files: ",
-                      style: Styles.optionLabelText.copyWith(
+                      style: Styles.optionLabelText16.copyWith(
                           fontSize: 18, color: Colors.black.withOpacity(0.7)),
                     ),
                     StreamBuilder(
@@ -99,30 +99,40 @@ class _MainScreenState extends State<MainScreen> {
                       builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
                           Text(
                         snapshot.data!.folderForFiles,
-                        style:
-                            Styles.optionLabelText.copyWith(color: Colors.teal),
+                        style: Styles.optionLabelText14
+                            .copyWith(color: Colors.teal),
                       ),
                     ),
                   ],
                 ),
-                ClickableColumn(
-                  children: [
-                    Text(
-                      "Simultaneous downloads:",
-                      style: Styles.optionLabelText.copyWith(
-                          fontSize: 18, color: Colors.black.withOpacity(0.7)),
-                    ),
-                    const SizedBox(height: 10),
-                    StreamBuilder(
-                      stream: _bloc.appSettings,
-                      builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
-                          Row(
+                StreamBuilder(
+                  stream: _bloc.appSettings,
+                  builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
+                      ClickableColumn(
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "Simultaneous downloads",
+                            style: Styles.optionLabelText16
+                                .copyWith(color: Colors.black.withOpacity(0.7)),
+                          ),
+                          const SizedBox(width: 18),
+                          Text(
+                            snapshot.data!.simultaneousDownloads.toString(),
+                            style: Styles.optionLabelText16
+                                .copyWith(color: Colors.teal),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
                         children: [
                           Expanded(
                             child: SliderTheme(
                               data: SliderThemeData(
-                                  overlayShape: SliderComponentShape.noThumb
-                              ),
+                                  trackHeight: 1,
+                                  overlayShape: SliderComponentShape.noThumb),
                               child: Slider(
                                 min: 1,
                                 max: 10,
@@ -137,7 +147,69 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                             ),
                           ),
-                          Text(snapshot.data!.simultaneousDownloads.toString())
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                ClickableColumn(
+                  onClick: () {
+                    _bloc.appSettings.value = _bloc.appSettings.value
+                        .copyWith(onlyWiFi: !_bloc.appSettings.value.onlyWiFi);
+                  },
+                  children: [
+                    StreamBuilder(
+                      stream: _bloc.appSettings,
+                      builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
+                          Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Download only via wi-fi",
+                              style: Styles.optionLabelText16.copyWith(
+                                  color: Colors.black.withOpacity(0.7)),
+                            ),
+                          ),
+                          Switch(
+                              value: _bloc.appSettings.value.onlyWiFi,
+                              onChanged: (newVal) {
+                                _bloc.appSettings.value = _bloc
+                                    .appSettings.value
+                                    .copyWith(onlyWiFi: newVal);
+                              }),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                ClickableColumn(
+                  onClick: () {
+                    _bloc.appSettings.value = _bloc.appSettings.value.copyWith(
+                        sendNotificationOnlyWhenFinished: !_bloc.appSettings
+                            .value.sendNotificationOnlyWhenFinished);
+                  },
+                  children: [
+                    StreamBuilder(
+                      stream: _bloc.appSettings,
+                      builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
+                          Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Show notification only on completion",
+                              style: Styles.optionLabelText16.copyWith(
+                                  color: Colors.black.withOpacity(0.7)),
+                            ),
+                          ),
+                          Switch(
+                              value: _bloc.appSettings.value
+                                  .sendNotificationOnlyWhenFinished,
+                              onChanged: (newVal) {
+                                _bloc.appSettings.value =
+                                    _bloc.appSettings.value.copyWith(
+                                        sendNotificationOnlyWhenFinished:
+                                            newVal);
+                              }),
                         ],
                       ),
                     ),
