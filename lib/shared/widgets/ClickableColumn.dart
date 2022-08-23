@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class ClickableColumn extends StatelessWidget {
   final List<Widget> children;
   final void Function()? onClick;
+  final Color splashColor;
 
-  const ClickableColumn({Key? key, required this.children, this.onClick}) : super(key: key);
+  const ClickableColumn({Key? key, required this.children, this.onClick, this.splashColor=Colors.greenAccent}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class ClickableColumn extends StatelessWidget {
           color: Colors.white,
           child: InkWell(
 
-            splashColor: Colors.greenAccent,
+            splashColor: splashColor,
             borderRadius: const BorderRadius.all(Radius.circular(12)),
             focusColor: Colors.transparent,
             highlightColor: Colors.transparent,

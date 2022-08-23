@@ -1,15 +1,18 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:fetchme/fetchme.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/app_settings.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_items_dialog.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_mode.dart';
+import 'package:youtube_downloader/pages/main/folder_selector_dialog/folder_selector_dialog.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog.dart';
 import 'package:youtube_downloader/pages/main/main_screen_bloc.dart';
 import 'package:youtube_downloader/pages/main/main_screen_events.dart';
@@ -90,7 +93,8 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     const Divider(),
                     Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8, bottom: 10),
+                      padding: const EdgeInsets.only(
+                          left: 8.0, right: 8, top: 8, bottom: 10),
                       child: Row(children: const [
                         Icon(Icons.settings),
                         SizedBox(width: 18),
@@ -116,6 +120,12 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ),
                       ],
+                      onClick: () async {
+                        showDialog(context: context, builder: (ctx){
+                          return FolderSelectorDialog();
+                        });
+
+                      },
                     ),
                     StreamBuilder(
                       stream: _bloc.appSettings,
@@ -182,7 +192,7 @@ class _MainScreenState extends State<MainScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  "Download only via wi-fi",
+                                  "Download only via Wi-Fi",
                                   style: Styles.optionLabelText16.copyWith(
                                       color: Colors.black.withOpacity(0.7)),
                                 ),
