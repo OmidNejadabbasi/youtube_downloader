@@ -12,7 +12,7 @@ class FolderSelectorDialog extends StatefulWidget {
 }
 
 class _FolderSelectorDialogState extends State<FolderSelectorDialog> {
-  Directory currentDir = Directory('storage/emulated/0');
+  Directory currentDir = Directory('/storage/emulated/0');
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +25,47 @@ class _FolderSelectorDialogState extends State<FolderSelectorDialog> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(
               "Navigate to the folder you want: ",
-              style: Styles.labelTextStyle.copyWith(fontSize: 16),
+              style: Styles.labelTextStyle
+                  .copyWith(fontSize: 16, color: Colors.black87),
             ),
+            SizedBox(height: 24),
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.zero,
                 child: Column(
                   children: [
+                    (currentDir.path == '/storage/emulated/0')
+                        ? const SizedBox()
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ClickableColumn(
+                                  children: [
+                                    SizedBox(height: 8),
+                                    Text('../',
+                                        maxLines: 1,
+                                        style: Styles.labelTextStyle),
+                                    SizedBox(height: 8),
+                                    Divider(
+                                      indent: 3,
+                                      thickness: 0,
+                                      height: 6,
+                                      color: Colors.black12,
+                                    )
+                                  ],
+                                  splashColor: Colors.greenAccent.shade100,
+                                  onClick: () {
+                                    setState(() {
+                                      currentDir = currentDir.parent;
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                            ],
+                          ),
                     ...List.generate(
                       subDirs.length,
                       (index) {
@@ -43,12 +77,23 @@ class _FolderSelectorDialogState extends State<FolderSelectorDialog> {
                               child: ClickableColumn(
                                 children: [
                                   const SizedBox(height: 8),
-                                  Text(
-                                      subDirs[index].path.substring(
-                                          subDirs[index].path.lastIndexOf('/') +
-                                              1),
-                                      maxLines: 1,
-                                      style: Styles.labelTextStyle),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.folder,
+                                        color: Colors.black.withAlpha(110),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                          subDirs[index].path.substring(
+                                              subDirs[index]
+                                                      .path
+                                                      .lastIndexOf('/') +
+                                                  1),
+                                          maxLines: 1,
+                                          style: Styles.labelTextStyle),
+                                    ],
+                                  ),
                                   const SizedBox(height: 8),
                                   const Divider(
                                     indent: 3,
@@ -57,9 +102,11 @@ class _FolderSelectorDialogState extends State<FolderSelectorDialog> {
                                     color: Colors.black12,
                                   )
                                 ],
-                                splashColor:Colors.greenAccent.shade100,
-                                onClick: (){
-
+                                splashColor: Colors.greenAccent.shade100,
+                                onClick: () {
+                                  setState(() {
+                                    currentDir = subDirs[index];
+                                  });
                                 },
                               ),
                             ),

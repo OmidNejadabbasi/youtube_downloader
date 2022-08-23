@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:fetchme/fetchme.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/app_settings.dart';
@@ -121,10 +119,15 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ],
                       onClick: () async {
-                        showDialog(context: context, builder: (ctx){
-                          return FolderSelectorDialog();
-                        });
-
+                        String? newSavePath = await showDialog(
+                            context: context,
+                            builder: (ctx) {
+                              return FolderSelectorDialog();
+                            });
+                        if (!(newSavePath == null)) {
+                          _bloc.appSettings.value = _bloc.appSettings.value
+                              .copyWith(folderForFiles: newSavePath);
+                        }
                       },
                     ),
                     StreamBuilder(
