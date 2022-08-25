@@ -1,16 +1,16 @@
 class AppSettings{
-  String folderForFiles;
+  String saveDir;
   int simultaneousDownloads;
   bool onlyWiFi;
-  bool sendNotificationOnlyWhenFinished;
+  bool onlySendFinishNotification;
 
 //<editor-fold desc="Data Methods">
 
   AppSettings({
-    required this.folderForFiles,
+    required this.saveDir,
     required this.simultaneousDownloads,
     required this.onlyWiFi,
-    required this.sendNotificationOnlyWhenFinished,
+    required this.onlySendFinishNotification,
   });
 
   @override
@@ -18,26 +18,26 @@ class AppSettings{
       identical(this, other) ||
       (other is AppSettings &&
           runtimeType == other.runtimeType &&
-          folderForFiles == other.folderForFiles &&
+          saveDir == other.saveDir &&
           simultaneousDownloads == other.simultaneousDownloads &&
           onlyWiFi == other.onlyWiFi &&
-          sendNotificationOnlyWhenFinished ==
-              other.sendNotificationOnlyWhenFinished);
+          onlySendFinishNotification ==
+              other.onlySendFinishNotification);
 
   @override
   int get hashCode =>
-      folderForFiles.hashCode ^
+      saveDir.hashCode ^
       simultaneousDownloads.hashCode ^
       onlyWiFi.hashCode ^
-      sendNotificationOnlyWhenFinished.hashCode;
+      onlySendFinishNotification.hashCode;
 
   @override
   String toString() {
     return 'AppSettings{' +
-        ' folderForFiles: $folderForFiles,' +
+        ' folderForFiles: $saveDir,' +
         ' simultaneousDownloads: $simultaneousDownloads,' +
         ' onlyWiFi: $onlyWiFi,' +
-        ' sendNotificationOnlyWhenFinished: $sendNotificationOnlyWhenFinished,' +
+        ' sendNotificationOnlyWhenFinished: $onlySendFinishNotification,' +
         '}';
   }
 
@@ -48,30 +48,30 @@ class AppSettings{
     bool? sendNotificationOnlyWhenFinished,
   }) {
     return AppSettings(
-      folderForFiles: folderForFiles ?? this.folderForFiles,
+      saveDir: folderForFiles ?? this.saveDir,
       simultaneousDownloads:
           simultaneousDownloads ?? this.simultaneousDownloads,
       onlyWiFi: onlyWiFi ?? this.onlyWiFi,
-      sendNotificationOnlyWhenFinished: sendNotificationOnlyWhenFinished ??
-          this.sendNotificationOnlyWhenFinished,
+      onlySendFinishNotification: sendNotificationOnlyWhenFinished ??
+          this.onlySendFinishNotification,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'folderForFiles': this.folderForFiles,
+      'folderForFiles': this.saveDir,
       'simultaneousDownloads': this.simultaneousDownloads,
       'onlyWiFi': this.onlyWiFi,
-      'sendNotificationOnlyWhenFinished': this.sendNotificationOnlyWhenFinished,
+      'sendNotificationOnlyWhenFinished': this.onlySendFinishNotification,
     };
   }
 
   factory AppSettings.fromMap(Map<String, dynamic> map) {
     return AppSettings(
-      folderForFiles: map['folderForFiles'] as String,
+      saveDir: map['folderForFiles'] as String,
       simultaneousDownloads: map['simultaneousDownloads'] as int,
       onlyWiFi: map['onlyWiFi'] as bool,
-      sendNotificationOnlyWhenFinished:
+      onlySendFinishNotification:
           map['sendNotificationOnlyWhenFinished'] as bool,
     );
   }

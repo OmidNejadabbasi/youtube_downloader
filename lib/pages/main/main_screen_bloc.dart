@@ -5,10 +5,12 @@ import 'dart:ui';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:device_info/device_info.dart';
 import 'package:fetchme/fetchme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_downloader/domain/entities/app_settings.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/domain/repository/download_item_repository.dart';
@@ -29,13 +31,20 @@ class MainScreenBloc {
 
   bool _permissionReady = false;
   late String _localPath;
-  BehaviorSubject<AppSettings> appSettings = BehaviorSubject.seeded(AppSettings(
-      folderForFiles: '/mnt/e/Downloads',
-      simultaneousDownloads: 4,
-      onlyWiFi: false,
-      sendNotificationOnlyWhenFinished: true));
+  BehaviorSubject<AppSettings> appSettings = BehaviorSubject();
 
   MainScreenBloc(DownloadItemRepository repository) {
+    SharedPreferences.getInstance().then((value) async {
+      appSettings.add(AppSettings(
+          saveDir:
+              value.getString('saveDir') ?? (await _findLocalPath())!,
+          simultaneousDownloads: value.getInt('concurrentDownloads') ?? 3,
+          onlyWiFi: value.getBool('onlyWiFi') ?? false,
+          onlySendFinishNotification: true));
+    });
+
+    _findLocalPath().then((value) {});
+
     _repository = repository;
     _repository.getAllItems().then((value) {
       observableItemList = value.map((e) => BehaviorSubject.seeded(e)).toList();
@@ -60,7 +69,8 @@ class MainScreenBloc {
                 evt.entity.fps +
                 '.mp4';
         int counter = 1;
-        while (File(_localPath + "/" + fileName).existsSync()) {
+        while (File(appSettings.value.saveDir + "/" + fileName)
+            .existsSync()) {
           fileName = evt.entity.title.replaceAll(RegExp(r'[/|<>*\?":]'), "-") +
               "-" +
               evt.entity.fps +
@@ -75,8 +85,8 @@ class MainScreenBloc {
         // await _repository
         //     .insertDownloadItemEntity(evt.entity.copyWith(taskId: taskId));
 
-        int newTaskId =
-            await Fetchme.enqueue(evt.entity.link, _localPath, fileName);
+        int newTaskId = await Fetchme.enqueue(
+            evt.entity.link, appSettings.value.saveDir, fileName);
 
         var itemEntity = evt.entity.copyWith(taskId: newTaskId);
         var newId = await _repository.insertDownloadItemEntity(itemEntity);
@@ -99,27 +109,6 @@ class MainScreenBloc {
       }
     });
 
-    //   IsolateNameServer.registerPortWithName(
-    //       _port.sendPort, 'downloader_send_port');
-    //   _port.listen((dynamic data) {
-    //     String id = data[0];
-    //     DownloadTaskStatus status = data[1];
-    //     int progress = data[2];
-    //     var indexOf =
-    //         observableItemList.indexWhere((element) => element.taskId == id);
-    //     if (indexOf < 0) return;
-    //     observableItemList[indexOf] = observableItemList[indexOf]
-    //         .copyWith(taskId: id, status: status.value, downloaded: progress);
-    //     _mainScreenStateSubject.add(
-    //       MainScreenState(
-    //         observableItemList: observableItemList,
-    //       ),
-    //     );
-    //     _repository.updateDownloadItemEntity(observableItemList[indexOf]);
-    //   });
-    //
-    //   FlutterDownloader.registerCallback(downloadCallback);
-
     Fetchme.getUpdateStream().listen((updatedItem) {
       int index = observableItemList
           .map((e) => e.value)
@@ -133,12 +122,22 @@ class MainScreenBloc {
             status: updatedItem.status.value,
             size: updatedItem.total));
         _repository.updateDownloadItemEntity(observableItemList[index].value);
-        // _mainScreenStateSubject.add(
-        //   MainScreenState(
-        //     observableItemList: observableItemList,
-        //   ),
-        // );
       }
+    });
+
+    appSettings.listen((value) {
+      Fetchme.setSettings(
+        onlyWiFi: value.onlyWiFi,
+        concurrentDownloads: value.simultaneousDownloads,
+        onlySendFinishNotification: value.onlySendFinishNotification,
+      );
+
+      SharedPreferences.getInstance().then((sharedPrefs) async {
+        sharedPrefs.setBool('onlyWiFi', value.onlyWiFi);
+        sharedPrefs.setInt('concurrentDownload', value.simultaneousDownloads);
+        sharedPrefs.setString('saveDir', value.saveDir);
+        sharedPrefs.setBool('onlySendFinishNotification', value.onlySendFinishNotification);
+      });
     });
   }
 
@@ -163,15 +162,6 @@ class MainScreenBloc {
   Sink get eventSink => _mainScreenEvents.sink;
 
   Stream get mainScreenState => _mainScreenStateSubject.stream;
-
-// @pragma('vm:entry-point')
-// static void downloadCallback(
-//     String id, DownloadTaskStatus status, int progress) {
-//   final SendPort send =
-//       IsolateNameServer.lookupPortByName('downloader_send_port')!;
-//   send.send([id, status, progress]);
-//   print('download callback triggered');
-// }
 
   Future<void> _prepare() async {
     _permissionReady = await _checkPermission();
@@ -250,15 +240,6 @@ class MainScreenBloc {
 
   void onItemResumeClicked(int taskId) async {
     await Fetchme.resume(id: taskId);
-    // var indexOf =
-    //     observableItemList.indexWhere((element) => element.taskId == taskId);
-    // if (indexOf < 0) return;
-    // observableItemList[indexOf] =
-    //     observableItemList[indexOf].copyWith(taskId: id);
-    // _repository.updateDownloadItemEntity(observableItemList[indexOf]);
-    // var item =
-    //     observableItemList.where((element) => element.taskId == id).toList()[0];
-    // _repository.updateDownloadItemEntity(item);
   }
 
   void onItemRemoveClicked(int taskId) async {

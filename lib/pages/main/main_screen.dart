@@ -111,8 +111,9 @@ class _MainScreenState extends State<MainScreen> {
                           stream: _bloc.appSettings,
                           builder:
                               (context, AsyncSnapshot<AppSettings> snapshot) =>
+                              snapshot.data==null?const SizedBox():
                                   Text(
-                            snapshot.data!.folderForFiles,
+                            snapshot.data!.saveDir,
                             style: Styles.optionLabelText14
                                 .copyWith(color: Colors.teal),
                           ),
@@ -122,7 +123,7 @@ class _MainScreenState extends State<MainScreen> {
                         String? newSavePath = await showDialog(
                             context: context,
                             builder: (ctx) {
-                              return FolderSelectorDialog();
+                              return const FolderSelectorDialog();
                             });
                         if (!(newSavePath == null)) {
                           _bloc.appSettings.value = _bloc.appSettings.value
@@ -133,7 +134,8 @@ class _MainScreenState extends State<MainScreen> {
                     StreamBuilder(
                       stream: _bloc.appSettings,
                       builder: (context, AsyncSnapshot<AppSettings> snapshot) =>
-                          ClickableColumn(
+                      snapshot.data==null?const SizedBox():
+                      ClickableColumn(
                         children: [
                           Row(
                             children: [
@@ -191,6 +193,7 @@ class _MainScreenState extends State<MainScreen> {
                           stream: _bloc.appSettings,
                           builder:
                               (context, AsyncSnapshot<AppSettings> snapshot) =>
+                              snapshot.data==null?const SizedBox():
                                   Row(
                             children: [
                               Expanded(
@@ -219,13 +222,14 @@ class _MainScreenState extends State<MainScreen> {
                                 sendNotificationOnlyWhenFinished: !_bloc
                                     .appSettings
                                     .value
-                                    .sendNotificationOnlyWhenFinished);
+                                    .onlySendFinishNotification);
                       },
                       children: [
                         StreamBuilder(
                           stream: _bloc.appSettings,
                           builder:
                               (context, AsyncSnapshot<AppSettings> snapshot) =>
+                              snapshot.data==null?const SizedBox():
                                   Row(
                             children: [
                               Expanded(
@@ -237,7 +241,7 @@ class _MainScreenState extends State<MainScreen> {
                               ),
                               Switch(
                                   value: _bloc.appSettings.value
-                                      .sendNotificationOnlyWhenFinished,
+                                      .onlySendFinishNotification,
                                   onChanged: (newVal) {
                                     _bloc.appSettings.value =
                                         _bloc.appSettings.value.copyWith(
@@ -287,7 +291,7 @@ class _MainScreenState extends State<MainScreen> {
                   ],
                 ),
                 child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 250),
+                  duration: const Duration(milliseconds: 250),
                   transitionBuilder: (child, animation) {
                     return SlideTransition(
                       position: animation.drive(Tween<Offset>(
@@ -525,7 +529,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         backgroundColor: Styles.colorPrimary,
         onPressed: () async {
           var entity = await showDialog(
@@ -552,7 +556,7 @@ class _MainScreenState extends State<MainScreen> {
             stream: itemList[index],
             builder: (context, AsyncSnapshot<DownloadItemEntity> snapshot) {
               if (snapshot.data == null) {
-                return SizedBox();
+                return const SizedBox();
               }
               print("build of item");
               var isSelected = selectedIDs.contains(snapshot.data!.id);
