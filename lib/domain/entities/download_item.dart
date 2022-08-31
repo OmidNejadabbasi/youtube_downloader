@@ -78,4 +78,9 @@ class DownloadItemEntity {
     return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 1);
   }
 
+  @override
+  String toString() {
+    return "id=$id, title=$title, size=$size, downloaded=$downloaded, status=$status";
+  }
+
 }

@@ -558,7 +558,7 @@ class _MainScreenState extends State<MainScreen> {
               if (snapshot.data == null) {
                 return const SizedBox();
               }
-              print("build of item");
+              print(snapshot.data.toString());
               var isSelected = selectedIDs.contains(snapshot.data!.id);
               return GestureDetector(
                 onTap: () {

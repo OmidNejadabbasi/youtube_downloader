@@ -121,7 +121,7 @@ class DownloadItemListTile extends StatelessWidget {
                               DownloadTaskStatus.running.value,
                               DownloadTaskStatus.paused.value
                             ].contains(status) ?
-                            downloadItem.getProgressPercentage() : 'Waiting in queue',
+                            downloadItem.getProgressPercentage() : 'Waiting in queue ⏳',
                             style: Styles.labelTextStyle,
                           ),
                         ),
@@ -176,7 +176,7 @@ class DownloadItemListTile extends StatelessWidget {
         : downloadItem.status == DownloadTaskStatus.failed.value
         ? Icons.restart_alt
         : downloadItem.status == DownloadTaskStatus.queued.value
-        ? Icons.hourglass_top_rounded
+        ? Icons.play_arrow
         : Icons.pause;
 
     var color = downloadItem.status == DownloadTaskStatus.paused.value
@@ -200,7 +200,8 @@ class DownloadItemListTile extends StatelessWidget {
           if (downloadItem.status == DownloadTaskStatus.running.value) {
             onPause(downloadItem.taskId!);
           } else if (downloadItem.status ==
-              DownloadTaskStatus.paused.value) {
+              DownloadTaskStatus.paused.value || downloadItem.status ==
+              DownloadTaskStatus.queued.value) {
             onResume(downloadItem.taskId!);
           } else if (downloadItem.status ==
               DownloadTaskStatus.canceled.value ||
