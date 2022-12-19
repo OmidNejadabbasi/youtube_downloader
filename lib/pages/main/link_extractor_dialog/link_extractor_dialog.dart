@@ -24,7 +24,7 @@ class _YoutubeLinkExtractorDialogState
   final _linkInputController = TextEditingController();
 
   late LinkExtractorDialogBloc _bloc;
-  int selectedLinkInd = 0;
+  int selectedLinkInd = -1;
   DownloadItemEntity? selectedItem;
 
   @override
@@ -161,11 +161,26 @@ class _YoutubeLinkExtractorDialogState
                   ),
                 );
               } else if (snapshot.data.runtimeType == LoadingUnsuccessful) {
-                return Text(
-                    "Error: ${(snapshot.data as LoadingUnsuccessful).e.toString()}");
+                return Container(
+                    padding: const EdgeInsets.only(top: 24, bottom: 8),
+                    child: RichText(
+                      text: TextSpan(
+                          text: "Error: ",
+                          style: Styles.labelTextStyle,
+                          children: [
+                            TextSpan(
+                              text: (snapshot.data as LoadingUnsuccessful).e,
+                              style: Styles.labelTextStyle
+                                  .copyWith(color: Colors.red),
+                            )
+                          ]),
+                    ));
               } else if (snapshot.data.runtimeType == LinksListLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(),
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 );
               }
               return const Padding(
@@ -181,9 +196,10 @@ class _YoutubeLinkExtractorDialogState
                 onPressed: () {
                   Navigator.pop(context, null);
                 },
-                child: const Text(
+                child: Text(
                   'Cancel',
-                  style: Styles.labelTextStyle,
+                  style:
+                      Styles.labelTextStyle.copyWith(color: Colors.blueAccent),
                 ),
               ),
               TextButton(
@@ -192,9 +208,11 @@ class _YoutubeLinkExtractorDialogState
                     : () {
                         Navigator.pop(context, selectedItem);
                       },
-                child: const Text(
+                child: Text(
                   'Start',
-                  style: Styles.labelTextStyle,
+                  style: (selectedLinkInd != -1)
+                      ? Styles.labelTextStyle.copyWith(color: Colors.blueAccent)
+                      : Styles.labelTextStyle,
                 ),
               )
             ],

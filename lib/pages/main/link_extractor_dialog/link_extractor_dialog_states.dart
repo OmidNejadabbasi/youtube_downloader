@@ -14,7 +14,7 @@ class LinksLoadedState {
 }
 
 class LoadingUnsuccessful {
-  final Error e;
+  final String e;
 
   LoadingUnsuccessful(this.e);
 }

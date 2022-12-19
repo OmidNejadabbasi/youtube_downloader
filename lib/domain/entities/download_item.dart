@@ -80,7 +80,7 @@ class DownloadItemEntity {
 
   @override
   String toString() {
-    return "id=$id, title=$title, size=$size, downloaded=$downloaded, status=$status";
+    return "taskId=$taskId, title=$title, size=$size, downloaded=$downloaded, status=$status";
   }
 
 }

@@ -3,9 +3,9 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:android_path_provider/android_path_provider.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:device_info/device_info.dart';
 import 'package:fetchme/fetchme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -28,16 +28,23 @@ class MainScreenBloc {
   BehaviorSubject<int> completedCount = BehaviorSubject.seeded(0);
   BehaviorSubject<int> queueCount = BehaviorSubject.seeded(0);
   PublishSubject<String> errorStream = PublishSubject();
+  Connectivity connectivity = Connectivity();
 
   bool _permissionReady = false;
   late String _localPath;
   BehaviorSubject<AppSettings> appSettings = BehaviorSubject();
 
   MainScreenBloc(DownloadItemRepository repository) {
+    connectivity.onConnectivityChanged.listen((event) {
+      if (event == ConnectivityResult.none) {
+        Fetchme.pauseAll();
+        print("pause all");
+      }
+    });
+
     SharedPreferences.getInstance().then((value) async {
       appSettings.add(AppSettings(
-          saveDir:
-              value.getString('saveDir') ?? (await _findLocalPath())!,
+          saveDir: value.getString('saveDir') ?? (await _findLocalPath())!,
           simultaneousDownloads: value.getInt('concurrentDownloads') ?? 3,
           onlyWiFi: value.getBool('onlyWiFi') ?? false,
           onlySendFinishNotification: true));
@@ -69,12 +76,12 @@ class MainScreenBloc {
                 evt.entity.fps +
                 '.mp4';
         int counter = 1;
-        while (File(appSettings.value.saveDir + "/" + fileName)
-            .existsSync()) {
+        while (File(appSettings.value.saveDir + "/" + fileName).existsSync()) {
           fileName = evt.entity.title.replaceAll(RegExp(r'[/|<>*\?":]'), "-") +
               "-" +
               evt.entity.fps +
               '($counter).mp4';
+          counter++;
         }
         // var taskId = await FlutterDownloader.enqueue(
         //   url: evt.entity.link,
@@ -109,7 +116,9 @@ class MainScreenBloc {
       }
     });
 
-    Fetchme.getUpdateStream().listen((updatedItem) {
+    Fetchme.getUpdateStream().listen((updatedItem) async {
+      updatedItem = DownloadItem.fromMap(updatedItem);
+
       int index = observableItemList
           .map((e) => e.value)
           .toList()
@@ -118,11 +127,21 @@ class MainScreenBloc {
       if (index > 0) {
         print("item status " + updatedItem.downloaded.toString());
         observableItemList[index].add(observableItemList[index].value.copyWith(
+            taskId: updatedItem.id,
             downloaded: updatedItem.downloaded,
             status: updatedItem.status.value,
             size: updatedItem.total));
         _repository.updateDownloadItemEntity(observableItemList[index].value);
       }
+      print((await Fetchme.getAllDownloadItems())
+          .map((e) => 'taskId=${e.id}, title=${e.fileName.substring(0, 10)}')
+          .toList());
+    }, onError: (error) {
+      error = error as PlatformException;
+      DownloadItem errObj = DownloadItem.fromMap(error.details);
+      print(error);
+      print(error.runtimeType);
+      print("Helooooooooooooo");
     });
 
     appSettings.listen((value) {
@@ -136,7 +155,8 @@ class MainScreenBloc {
         sharedPrefs.setBool('onlyWiFi', value.onlyWiFi);
         sharedPrefs.setInt('concurrentDownload', value.simultaneousDownloads);
         sharedPrefs.setString('saveDir', value.saveDir);
-        sharedPrefs.setBool('onlySendFinishNotification', value.onlySendFinishNotification);
+        sharedPrefs.setBool(
+            'onlySendFinishNotification', value.onlySendFinishNotification);
       });
     });
   }
@@ -184,7 +204,8 @@ class MainScreenBloc {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     if (Platform.isAndroid && androidInfo.version.sdkInt <= 33) {
-      final status = await Permission.storage.status;
+      final status = await Permission.manageExternalStorage.status;
+      print(status);
       if (status != PermissionStatus.granted) {
         final result = await Permission.storage.request();
         print("Permission result   " + result.toString());
@@ -256,6 +277,16 @@ class MainScreenBloc {
   }
 
   void onItemRetryClicked(int taskId) async {
+    print((await Fetchme.getAllDownloadItems())
+        .map((e) => 'taskId=${e.id}, title=${e.fileName.substring(0, 10)}')
+        .toList());
+    print('retry id: $taskId');
+    int index = observableItemList
+        .map((e) => e.value)
+        .toList()
+        .indexWhere((element) => element.taskId == taskId);
+    // int newTaskId = await Fetchme.enqueue(
+    //     observableItemList[index].value.link, appSettings.value.saveDir, observableItemList[index].value.title);
     await Fetchme.retry(id: taskId);
   }
 }
