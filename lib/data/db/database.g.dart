@@ -21,6 +21,8 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
   final String? thumbnail_link;
   final int? task_id;
   final int? status;
+  final int streamTag;
+  final String videoId;
   DownloadItem(
       {required this.id,
       required this.link,
@@ -34,7 +36,9 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       this.duration,
       this.thumbnail_link,
       this.task_id,
-      this.status});
+      this.status,
+      required this.streamTag,
+      required this.videoId});
   factory DownloadItem.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return DownloadItem(
@@ -64,6 +68,10 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           .mapFromDatabaseResponse(data['${effectivePrefix}task_id']),
       status: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}status']),
+      streamTag: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}stream_tag'])!,
+      videoId: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}video_id'])!,
     );
   }
   @override
@@ -96,6 +104,8 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
     if (!nullToAbsent || status != null) {
       map['status'] = Variable<int?>(status);
     }
+    map['stream_tag'] = Variable<int>(streamTag);
+    map['video_id'] = Variable<String>(videoId);
     return map;
   }
 
@@ -124,6 +134,8 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           : Value(task_id),
       status:
           status == null && nullToAbsent ? const Value.absent() : Value(status),
+      streamTag: Value(streamTag),
+      videoId: Value(videoId),
     );
   }
 
@@ -144,6 +156,8 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       thumbnail_link: serializer.fromJson<String?>(json['thumbnail_link']),
       task_id: serializer.fromJson<int?>(json['task_id']),
       status: serializer.fromJson<int?>(json['status']),
+      streamTag: serializer.fromJson<int>(json['streamTag']),
+      videoId: serializer.fromJson<String>(json['videoId']),
     );
   }
   @override
@@ -163,6 +177,8 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
       'thumbnail_link': serializer.toJson<String?>(thumbnail_link),
       'task_id': serializer.toJson<int?>(task_id),
       'status': serializer.toJson<int?>(status),
+      'streamTag': serializer.toJson<int>(streamTag),
+      'videoId': serializer.toJson<String>(videoId),
     };
   }
 
@@ -179,7 +195,9 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           int? duration,
           String? thumbnail_link,
           int? task_id,
-          int? status}) =>
+          int? status,
+          int? streamTag,
+          String? videoId}) =>
       DownloadItem(
         id: id ?? this.id,
         link: link ?? this.link,
@@ -194,6 +212,8 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
         thumbnail_link: thumbnail_link ?? this.thumbnail_link,
         task_id: task_id ?? this.task_id,
         status: status ?? this.status,
+        streamTag: streamTag ?? this.streamTag,
+        videoId: videoId ?? this.videoId,
       );
   @override
   String toString() {
@@ -210,14 +230,30 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           ..write('duration: $duration, ')
           ..write('thumbnail_link: $thumbnail_link, ')
           ..write('task_id: $task_id, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('streamTag: $streamTag, ')
+          ..write('videoId: $videoId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, link, title, size, downloaded, format,
-      fps, isAudio, quality, duration, thumbnail_link, task_id, status);
+  int get hashCode => Object.hash(
+      id,
+      link,
+      title,
+      size,
+      downloaded,
+      format,
+      fps,
+      isAudio,
+      quality,
+      duration,
+      thumbnail_link,
+      task_id,
+      status,
+      streamTag,
+      videoId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -234,7 +270,9 @@ class DownloadItem extends DataClass implements Insertable<DownloadItem> {
           other.duration == this.duration &&
           other.thumbnail_link == this.thumbnail_link &&
           other.task_id == this.task_id &&
-          other.status == this.status);
+          other.status == this.status &&
+          other.streamTag == this.streamTag &&
+          other.videoId == this.videoId);
 }
 
 class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
@@ -251,6 +289,8 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
   final Value<String?> thumbnail_link;
   final Value<int?> task_id;
   final Value<int?> status;
+  final Value<int> streamTag;
+  final Value<String> videoId;
   const DownloadItemsCompanion({
     this.id = const Value.absent(),
     this.link = const Value.absent(),
@@ -265,6 +305,8 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
     this.thumbnail_link = const Value.absent(),
     this.task_id = const Value.absent(),
     this.status = const Value.absent(),
+    this.streamTag = const Value.absent(),
+    this.videoId = const Value.absent(),
   });
   DownloadItemsCompanion.insert({
     this.id = const Value.absent(),
@@ -280,9 +322,13 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
     this.thumbnail_link = const Value.absent(),
     this.task_id = const Value.absent(),
     this.status = const Value.absent(),
+    required int streamTag,
+    required String videoId,
   })  : link = Value(link),
         title = Value(title),
-        isAudio = Value(isAudio);
+        isAudio = Value(isAudio),
+        streamTag = Value(streamTag),
+        videoId = Value(videoId);
   static Insertable<DownloadItem> custom({
     Expression<int>? id,
     Expression<String>? link,
@@ -297,6 +343,8 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
     Expression<String?>? thumbnail_link,
     Expression<int?>? task_id,
     Expression<int?>? status,
+    Expression<int>? streamTag,
+    Expression<String>? videoId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -312,6 +360,8 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
       if (thumbnail_link != null) 'thumbnail_link': thumbnail_link,
       if (task_id != null) 'task_id': task_id,
       if (status != null) 'status': status,
+      if (streamTag != null) 'stream_tag': streamTag,
+      if (videoId != null) 'video_id': videoId,
     });
   }
 
@@ -328,7 +378,9 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
       Value<int?>? duration,
       Value<String?>? thumbnail_link,
       Value<int?>? task_id,
-      Value<int?>? status}) {
+      Value<int?>? status,
+      Value<int>? streamTag,
+      Value<String>? videoId}) {
     return DownloadItemsCompanion(
       id: id ?? this.id,
       link: link ?? this.link,
@@ -343,6 +395,8 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
       thumbnail_link: thumbnail_link ?? this.thumbnail_link,
       task_id: task_id ?? this.task_id,
       status: status ?? this.status,
+      streamTag: streamTag ?? this.streamTag,
+      videoId: videoId ?? this.videoId,
     );
   }
 
@@ -388,6 +442,12 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
     if (status.present) {
       map['status'] = Variable<int?>(status.value);
     }
+    if (streamTag.present) {
+      map['stream_tag'] = Variable<int>(streamTag.value);
+    }
+    if (videoId.present) {
+      map['video_id'] = Variable<String>(videoId.value);
+    }
     return map;
   }
 
@@ -406,7 +466,9 @@ class DownloadItemsCompanion extends UpdateCompanion<DownloadItem> {
           ..write('duration: $duration, ')
           ..write('thumbnail_link: $thumbnail_link, ')
           ..write('task_id: $task_id, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('streamTag: $streamTag, ')
+          ..write('videoId: $videoId')
           ..write(')'))
         .toString();
   }
@@ -492,6 +554,16 @@ class $DownloadItemsTable extends DownloadItems
   late final GeneratedColumn<int?> status = GeneratedColumn<int?>(
       'status', aliasedName, true,
       type: const IntType(), requiredDuringInsert: false);
+  final VerificationMeta _streamTagMeta = const VerificationMeta('streamTag');
+  @override
+  late final GeneratedColumn<int?> streamTag = GeneratedColumn<int?>(
+      'stream_tag', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _videoIdMeta = const VerificationMeta('videoId');
+  @override
+  late final GeneratedColumn<String?> videoId = GeneratedColumn<String?>(
+      'video_id', aliasedName, false,
+      type: const StringType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -506,7 +578,9 @@ class $DownloadItemsTable extends DownloadItems
         duration,
         thumbnail_link,
         task_id,
-        status
+        status,
+        streamTag,
+        videoId
       ];
   @override
   String get aliasedName => _alias ?? 'download_items';
@@ -577,6 +651,18 @@ class $DownloadItemsTable extends DownloadItems
     if (data.containsKey('status')) {
       context.handle(_statusMeta,
           status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('stream_tag')) {
+      context.handle(_streamTagMeta,
+          streamTag.isAcceptableOrUnknown(data['stream_tag']!, _streamTagMeta));
+    } else if (isInserting) {
+      context.missing(_streamTagMeta);
+    }
+    if (data.containsKey('video_id')) {
+      context.handle(_videoIdMeta,
+          videoId.isAcceptableOrUnknown(data['video_id']!, _videoIdMeta));
+    } else if (isInserting) {
+      context.missing(_videoIdMeta);
     }
     return context;
   }

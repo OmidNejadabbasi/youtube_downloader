@@ -49,37 +49,39 @@ class LinkExtractorDialogBloc {
         List<DownloadItemEntity> linksList = [];
         for (var item in manifest.muxed) {
           linksList.add(DownloadItemEntity(
-            link: item.url.toString(),
-            thumbnailLink: video.thumbnails.mediumResUrl,
-            isAudio: false,
-            fps: item.framerate.toString(),
-            format: item.container.toString(),
-            title: video.title,
-            duration: video.duration?.inSeconds ?? 0,
-            quality: item.videoQuality
-                    .toString()
-                    .replaceAll(RegExp('[A-Za-z.]+'), '') +
-                "p",
-            taskId: 0,
-            status: DownloadTaskStatus.undefined.value,
-          ));
+              link: item.url.toString(),
+              thumbnailLink: video.thumbnails.mediumResUrl,
+              isAudio: false,
+              fps: item.framerate.toString(),
+              format: item.container.toString(),
+              title: video.title,
+              duration: video.duration?.inSeconds ?? 0,
+              quality: item.videoQuality
+                      .toString()
+                      .replaceAll(RegExp('[A-Za-z.]+'), '') +
+                  "p",
+              taskId: 0,
+              status: DownloadTaskStatus.undefined.value,
+              streamTag: item.tag,
+              videoId: videoId.value));
         }
         for (var item in manifest.video) {
           linksList.add(DownloadItemEntity(
-            link: item.url.toString(),
-            thumbnailLink: video.thumbnails.mediumResUrl,
-            isAudio: false,
-            fps: item.framerate.toString(),
-            format: item.container.toString(),
-            title: video.title,
-            duration: video.duration?.inSeconds ?? 0,
-            quality: item.videoQuality
-                    .toString()
-                    .replaceAll(RegExp('[A-za-z.]'), '') +
-                "p",
-            taskId: 0,
-            status: DownloadTaskStatus.undefined.value,
-          ));
+              link: item.url.toString(),
+              thumbnailLink: video.thumbnails.mediumResUrl,
+              isAudio: false,
+              fps: item.framerate.toString(),
+              format: item.container.toString(),
+              title: video.title,
+              duration: video.duration?.inSeconds ?? 0,
+              quality: item.videoQuality
+                      .toString()
+                      .replaceAll(RegExp('[A-za-z.]'), '') +
+                  "p",
+              taskId: 0,
+              status: DownloadTaskStatus.undefined.value,
+              streamTag: item.tag,
+              videoId: videoId.value));
         }
         dialogState.add(LinksLoadedState(linksList, video));
       } on TimeoutException {

@@ -71,7 +71,7 @@ class MainScreenBloc {
         final evt = event as AddDownloadItemEvent;
         //
         String fileName =
-            evt.entity.title.replaceAll(RegExp(r'[/|<>*\?":]'), "-") +
+            evt.entity.title.replaceAll(RegExp(r'[/|<>*\?":]+'), "-") +
                 "-" +
                 evt.entity.fps +
                 '.mp4';
@@ -132,9 +132,11 @@ class MainScreenBloc {
             status: updatedItem.status.value,
             size: updatedItem.total));
         _repository.updateDownloadItemEntity(observableItemList[index].value);
+      } else {
+        print("id not found");
       }
       print((await Fetchme.getAllDownloadItems())
-          .map((e) => 'taskId=${e.id}, title=${e.fileName.substring(0, 10)}')
+          .map((e) => 'taskId=${e.id}, title=${e.fileName.substring(20, 30)}')
           .toList());
     }, onError: (error) {
       error = error as PlatformException;
@@ -260,6 +262,7 @@ class MainScreenBloc {
   }
 
   void onItemResumeClicked(int taskId) async {
+    updateLinkIfNeeded(taskId);
     await Fetchme.resume(id: taskId);
   }
 
@@ -288,5 +291,17 @@ class MainScreenBloc {
     // int newTaskId = await Fetchme.enqueue(
     //     observableItemList[index].value.link, appSettings.value.saveDir, observableItemList[index].value.title);
     await Fetchme.retry(id: taskId);
+  }
+
+  updateLinkIfNeeded(int taskId) {
+    DownloadItemEntity item =
+        itemList.firstWhere((element) => element.taskId == taskId);
+    RegExpMatch? match = RegExp(r"expire=(\d+)").firstMatch(item.link);
+    if (match != null) {
+      int expTime = int.parse(match.group(1)!);
+      if (DateTime.now().millisecondsSinceEpoch / 1000 - expTime < 3600) {
+
+      }
+    }
   }
 }

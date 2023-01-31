@@ -121,7 +121,7 @@ class DownloadItemListTile extends StatelessWidget {
                               DownloadTaskStatus.running.value,
                               DownloadTaskStatus.paused.value
                             ].contains(status) ?
-                            downloadItem.getProgressPercentage() : 'Waiting in queue ⏳',
+                            downloadItem.getProgressPercentage() : 'Waiting in queue',
                             style: Styles.labelTextStyle,
                           ),
                         ),

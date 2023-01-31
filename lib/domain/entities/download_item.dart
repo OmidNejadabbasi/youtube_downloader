@@ -17,6 +17,8 @@ class DownloadItemEntity {
   final String thumbnailLink;
   final int? taskId;
   final int? status;
+  final String videoId;
+  final int streamTag;
 
   DownloadItemEntity({
     this.id,
@@ -32,6 +34,8 @@ class DownloadItemEntity {
     required this.thumbnailLink,
     required this.taskId,
     required this.status,
+    required this.videoId,
+    required this.streamTag,
   });
 
   DownloadItemEntity copyWith({
@@ -48,6 +52,8 @@ class DownloadItemEntity {
     String? thumbnailLink,
     int? taskId,
     int? status,
+    String? videoId,
+    int? streamTag,
   }) {
     return DownloadItemEntity(
       id: id ?? this.id,
@@ -63,6 +69,8 @@ class DownloadItemEntity {
       thumbnailLink: thumbnailLink ?? this.thumbnailLink,
       taskId: taskId ?? this.taskId,
       status: status ?? this.status,
+      streamTag: streamTag ?? this.streamTag,
+      videoId: videoId ?? this.videoId
     );
   }
 
