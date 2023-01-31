@@ -41,7 +41,7 @@ class LinkExtractorDialogBloc {
 
         Video video = await yt.videos
             .get(videoId)
-            .timeout(const Duration(seconds: 10), onTimeout: () {
+            .timeout(const Duration(seconds: 17), onTimeout: () {
           throw TimeoutException("Can't connect to YouTube");
         });
         var manifest = await yt.videos.streamsClient.getManifest(videoId);

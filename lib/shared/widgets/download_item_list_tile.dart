@@ -176,7 +176,7 @@ class DownloadItemListTile extends StatelessWidget {
         : downloadItem.status == DownloadTaskStatus.failed.value
         ? Icons.restart_alt
         : downloadItem.status == DownloadTaskStatus.queued.value
-        ? Icons.play_arrow
+        ? Icons.access_time_filled
         : Icons.pause;
 
     var color = downloadItem.status == DownloadTaskStatus.paused.value
@@ -200,8 +200,7 @@ class DownloadItemListTile extends StatelessWidget {
           if (downloadItem.status == DownloadTaskStatus.running.value) {
             onPause(downloadItem.taskId!);
           } else if (downloadItem.status ==
-              DownloadTaskStatus.paused.value || downloadItem.status ==
-              DownloadTaskStatus.queued.value) {
+              DownloadTaskStatus.paused.value) {
             onResume(downloadItem.taskId!);
           } else if (downloadItem.status ==
               DownloadTaskStatus.canceled.value ||

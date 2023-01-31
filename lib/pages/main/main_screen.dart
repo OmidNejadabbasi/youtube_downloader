@@ -569,8 +569,11 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildMainList(BuildContext context,
       List<BehaviorSubject<DownloadItemEntity>> itemList) {
     return ListView.builder(
-      itemCount: itemList.length,
+      itemCount: itemList.length+1,
       itemBuilder: (context, index) {
+        if (index == itemList.length){
+          return SizedBox(height: 70,);
+        }
         return StreamBuilder(
             key: ValueKey(itemList[index].value.id!),
             stream: itemList[index],
