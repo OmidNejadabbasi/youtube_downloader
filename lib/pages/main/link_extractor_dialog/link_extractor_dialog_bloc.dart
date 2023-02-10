@@ -3,13 +3,14 @@ import 'dart:io';
 
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_events.dart';
 import 'package:youtube_downloader/pages/main/link_extractor_dialog/link_extractor_dialog_states.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class LinkExtractorDialogBloc {
-  var yt = YoutubeExplode();
+  YoutubeExplode yt = sl();
 
   final StreamController<LinkExtractorDialogEvent> _eventController =
       StreamController();

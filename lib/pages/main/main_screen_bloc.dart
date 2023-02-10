@@ -11,11 +11,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:youtube_downloader/dependency_container.dart';
 import 'package:youtube_downloader/domain/entities/app_settings.dart';
 import 'package:youtube_downloader/domain/entities/download_item.dart';
 import 'package:youtube_downloader/domain/repository/download_item_repository.dart';
 import 'package:youtube_downloader/pages/main/delete_items_dialog/delete_mode.dart';
 import 'package:youtube_downloader/pages/main/main_screen_events.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import 'main_screen_states.dart';
 
@@ -126,12 +128,7 @@ class MainScreenBloc {
       if (updatedItem.status.value > 6) return;
       if (index > 0) {
         print("item status " + updatedItem.downloaded.toString());
-        observableItemList[index].add(observableItemList[index].value.copyWith(
-            taskId: updatedItem.id,
-            downloaded: updatedItem.downloaded,
-            status: updatedItem.status.value,
-            size: updatedItem.total));
-        _repository.updateDownloadItemEntity(observableItemList[index].value);
+        updateItemInDbAndList(index, updatedItem);
       } else {
         print("id not found");
       }
@@ -143,7 +140,7 @@ class MainScreenBloc {
       DownloadItem errObj = DownloadItem.fromMap(error.details);
       print(error);
       print(error.runtimeType);
-      print("Helooooooooooooo");
+      print("Hello  " + errObj.status.toString());
     });
 
     appSettings.listen((value) {
@@ -161,6 +158,16 @@ class MainScreenBloc {
             'onlySendFinishNotification', value.onlySendFinishNotification);
       });
     });
+  }
+
+  void updateItemInDbAndList(int index, DownloadItem updatedItem) {
+    observableItemList[index].add(observableItemList[index].value.copyWith(
+        taskId: updatedItem.id,
+        downloaded: updatedItem.downloaded,
+        link: updatedItem.url,
+        status: updatedItem.status.value,
+        size: updatedItem.total));
+    _repository.updateDownloadItemEntity(observableItemList[index].value);
   }
 
   void deleteItems(DeleteDownloadsEvent evt) {
@@ -262,8 +269,9 @@ class MainScreenBloc {
   }
 
   void onItemResumeClicked(int taskId) async {
-    updateLinkIfNeeded(taskId);
-    await Fetchme.resume(id: taskId);
+    print('resume ' + taskId.toString());
+    int possiblyNewTaskId  = await updateLinkIfNeeded(taskId);
+    await Fetchme.resume(id: possiblyNewTaskId);
   }
 
   void onItemRemoveClicked(int taskId) async {
@@ -284,24 +292,73 @@ class MainScreenBloc {
         .map((e) => 'taskId=${e.id}, title=${e.fileName.substring(0, 10)}')
         .toList());
     print('retry id: $taskId');
-    int index = observableItemList
-        .map((e) => e.value)
-        .toList()
-        .indexWhere((element) => element.taskId == taskId);
+    int index = getItemIndexWithTaskId(taskId);
     // int newTaskId = await Fetchme.enqueue(
     //     observableItemList[index].value.link, appSettings.value.saveDir, observableItemList[index].value.title);
     await Fetchme.retry(id: taskId);
   }
 
-  updateLinkIfNeeded(int taskId) {
+  Future<int> updateLinkIfNeeded(int taskId) async {
     DownloadItemEntity item =
         itemList.firstWhere((element) => element.taskId == taskId);
-    RegExpMatch? match = RegExp(r"expire=(\d+)").firstMatch(item.link);
-    if (match != null) {
-      int expTime = int.parse(match.group(1)!);
-      if (DateTime.now().millisecondsSinceEpoch / 1000 - expTime < 3600) {
-
+    int expTime = getExpirationTimeFromLink(item.link);
+    if (expTime != -1) {
+      if (DateTime.now().millisecondsSinceEpoch / 1000 - expTime < 600) {
+        print("needs to update");
+        var newLink = await getStreamLink(item.streamTag, item.videoId);
+        print("new link found : " + newLink!);
+        if (newLink != null) {
+          var newDItem = await Fetchme.updateLink(id: taskId, newLink: newLink);
+          int index = getItemIndexWithTaskId(taskId);
+          if (index > 0) {
+            updateItemInDbAndList(index, newDItem);
+            print('database updated');
+          }
+          return newDItem.id;
+        }
       }
     }
+    return taskId;
+  }
+
+  int getItemIndexWithTaskId(int taskId) {
+    int index = observableItemList
+        .map((e) => e.value)
+        .toList()
+        .indexWhere((element) => element.taskId == taskId);
+    return index;
+  }
+
+  getExpirationTimeFromLink(String link) {
+    RegExpMatch? match = RegExp(r"expire=(\d+)").firstMatch(link);
+    if (match != null) {
+      int expTime = int.parse(match.group(1)!);
+      return expTime;
+    }
+    return -1;
+  }
+
+  Future<String?> getStreamLink(int tag, String videoId) async {
+    YoutubeExplode yt = sl();
+    var manifest = await yt.videos.streamsClient.getManifest(VideoId(videoId));
+
+    var muxedStream =
+        firstWhere<MuxedStreamInfo>(manifest.muxed, (p0) => p0.tag == tag);
+    if (muxedStream != null) return muxedStream.url.toString();
+    var videoStream =
+        firstWhere<VideoStreamInfo>(manifest.video, (p0) => p0.tag == tag);
+    if (videoStream != null) return videoStream.url.toString();
+    var audioStream =
+        firstWhere<AudioStreamInfo>(manifest.audio, (p0) => p0.tag == tag);
+    if (audioStream != null) return audioStream.url.toString();
+
+    return null;
+  }
+
+  T? firstWhere<T>(List<T> list, bool Function(T) predicate) {
+    for (T t in list) {
+      if (predicate(t)) return t;
+    }
+    return null;
   }
 }
