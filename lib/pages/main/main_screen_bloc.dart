@@ -126,7 +126,7 @@ class MainScreenBloc {
           .toList()
           .indexWhere((element) => element.taskId == updatedItem.id);
       if (updatedItem.status.value > 6) return;
-      if (index > 0) {
+      if (index >= 0) {
         print("item status " + updatedItem.downloaded.toString());
         updateItemInDbAndList(index, updatedItem);
       } else {
