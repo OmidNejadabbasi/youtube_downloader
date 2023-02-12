@@ -127,7 +127,7 @@ class MainScreenBloc {
           .indexWhere((element) => element.taskId == updatedItem.id);
       if (updatedItem.status.value > 6) return;
       if (index >= 0) {
-        print("item status " + updatedItem.downloaded.toString());
+        print("item status " + updatedItem.downloaded.toString() + " code: " + updatedItem.status.value.toString());
         updateItemInDbAndList(index, updatedItem);
       } else {
         print("id not found");
@@ -140,6 +140,7 @@ class MainScreenBloc {
       DownloadItem errObj = DownloadItem.fromMap(error.details);
       print(error);
       print(error.runtimeType);
+      updateItemInDbAndList(getItemIndexWithTaskId(errObj.id), errObj);
       print("Hello  " + errObj.status.toString());
     });
 
@@ -269,8 +270,7 @@ class MainScreenBloc {
   }
 
   void onItemResumeClicked(int taskId) async {
-    print('resume ' + taskId.toString());
-    int possiblyNewTaskId  = await updateLinkIfNeeded(taskId);
+    int possiblyNewTaskId = await updateLinkIfNeeded(taskId);
     await Fetchme.resume(id: possiblyNewTaskId);
   }
 
@@ -288,13 +288,8 @@ class MainScreenBloc {
   }
 
   void onItemRetryClicked(int taskId) async {
-    print((await Fetchme.getAllDownloadItems())
-        .map((e) => 'taskId=${e.id}, title=${e.fileName.substring(0, 10)}')
-        .toList());
-    print('retry id: $taskId');
-    int index = getItemIndexWithTaskId(taskId);
-    // int newTaskId = await Fetchme.enqueue(
-    //     observableItemList[index].value.link, appSettings.value.saveDir, observableItemList[index].value.title);
+    int possiblyNewTaskId = await updateLinkIfNeeded(taskId);
+    await Fetchme.resume(id: possiblyNewTaskId);
     await Fetchme.retry(id: taskId);
   }
 
@@ -303,9 +298,22 @@ class MainScreenBloc {
         itemList.firstWhere((element) => element.taskId == taskId);
     int expTime = getExpirationTimeFromLink(item.link);
     if (expTime != -1) {
-      if (DateTime.now().millisecondsSinceEpoch / 1000 - expTime < 600) {
+      var currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
+      if (-currentTime + expTime < 1500) {
         print("needs to update");
-        var newLink = await getStreamLink(item.streamTag, item.videoId);
+        var newLink;
+        try {
+          newLink = await getStreamLink(item.streamTag, item.videoId);
+        } catch (err) {
+          print("regen timed Out!");
+          int index = getItemIndexWithTaskId(taskId);
+          if (index > 0) {
+            observableItemList[index].add(observableItemList[index]
+                .value
+                .copyWith(status: DownloadTaskStatus.failed.value));
+            print('database updated');
+          }
+        }
         print("new link found : " + newLink!);
         if (newLink != null) {
           var newDItem = await Fetchme.updateLink(id: taskId, newLink: newLink);
@@ -340,7 +348,11 @@ class MainScreenBloc {
 
   Future<String?> getStreamLink(int tag, String videoId) async {
     YoutubeExplode yt = sl();
-    var manifest = await yt.videos.streamsClient.getManifest(VideoId(videoId));
+    var manifest = await yt.videos.streamsClient
+        .getManifest(VideoId(videoId))
+        .timeout(const Duration(seconds: 10), onTimeout: () {
+      throw TimeoutException("Can't connect to YouTube");
+    });
 
     var muxedStream =
         firstWhere<MuxedStreamInfo>(manifest.muxed, (p0) => p0.tag == tag);

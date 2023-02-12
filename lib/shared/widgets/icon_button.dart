@@ -28,7 +28,7 @@ class NIconButton extends StatelessWidget {
         child: Padding(
 
           padding: EdgeInsets.all(padding),
-          child: Icon(icon, size: iconSize),
+          child: Icon(icon, size: iconSize, color: iconColor ),
         ),
         onTap: onPressed,
         customBorder: RoundedRectangleBorder(
