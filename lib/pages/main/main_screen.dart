@@ -272,6 +272,22 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
               const Divider(),
+              ClickableColumn(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 8.0, right: 8, top: 8, bottom: 10),
+                    child: Row(children: const [
+                      Icon(Icons.info),
+                      SizedBox(width: 18),
+                      Text("About"),
+                    ]),
+                  ),
+                ],
+                onClick: () {
+                  Navigator.pushNamed(context, '/about');
+                },
+              )
             ],
           )),
       body: SafeArea(
@@ -569,10 +585,12 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildMainList(BuildContext context,
       List<BehaviorSubject<DownloadItemEntity>> itemList) {
     return ListView.builder(
-      itemCount: itemList.length+1,
+      itemCount: itemList.length + 1,
       itemBuilder: (context, index) {
-        if (index == itemList.length){
-          return SizedBox(height: 70,);
+        if (index == itemList.length) {
+          return SizedBox(
+            height: 70,
+          );
         }
         return StreamBuilder(
             key: ValueKey(itemList[index].value.id!),

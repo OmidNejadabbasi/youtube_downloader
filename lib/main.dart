@@ -1,8 +1,8 @@
 import 'package:fetchme/fetchme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:youtube_downloader/dependency_container.dart';
+import 'package:youtube_downloader/pages/about/about.dart';
 import 'package:youtube_downloader/pages/main/main_screen.dart';
 
 void main() async {
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.deepOrange,
       ),
       home: const MainScreen(),
+      routes: {'/about': (context) => AboutPage()},
     );
   }
 }
