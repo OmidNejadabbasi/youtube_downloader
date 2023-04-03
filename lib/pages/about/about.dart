@@ -1,4 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatelessWidget {
   @override
@@ -25,7 +28,7 @@ class AboutPage extends StatelessWidget {
                   Text("Team Information:",
                       style: Theme.of(context).textTheme.subtitle1),
                   const SizedBox(height: 4.0),
-                  Text("Developed by John Doe",
+                  Text("Developed by Omid.N",
                       style: Theme.of(context).textTheme.bodyText2),
                   const SizedBox(height: 16.0),
                   Text("Features:",
@@ -37,19 +40,34 @@ class AboutPage extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyText2),
                   Text("- Background download capability",
                       style: Theme.of(context).textTheme.bodyText2),
+                  Text(
+                      "- Multi-threaded downloading behind the scenes (using fetchme lib.)",
+                      style: Theme.of(context).textTheme.bodyText2),
                   const SizedBox(height: 16.0),
                   Text("Contact Information:",
                       style: Theme.of(context).textTheme.subtitle1),
                   const SizedBox(height: 4.0),
-                  Text("Email: john.doe@example.com",
-                      style: Theme.of(context).textTheme.bodyText2),
-                  const SizedBox(height: 16.0),
-                  Text("Legal Information:",
-                      style: Theme.of(context).textTheme.subtitle1),
-                  const SizedBox(height: 4.0),
-                  Text(
-                      "This app is bound by the terms of service and privacy policy available at example.com/terms and example.com/privacy",
-                      style: Theme.of(context).textTheme.bodyText2),
+                  RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.subtitle1,
+                      children: <TextSpan>[
+                        const TextSpan(text: 'Email: '),
+                        TextSpan(
+                            text: 'nejadabbasio@gmail.com',
+                            style: const TextStyle(color: Colors.blue),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () async {
+                                const mailUrl = 'mailto:nejadabbasio@gmail.com';
+                                try {
+                                  await launch(mailUrl);
+                                } catch (e) {
+                                  await Clipboard.setData(const ClipboardData(
+                                      text: 'nejadabbasio@gmail.com'));
+                                }
+                              }),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 16.0),
                   Text("Version Information:",
                       style: Theme.of(context).textTheme.subtitle1),
@@ -57,10 +75,9 @@ class AboutPage extends StatelessWidget {
                   Text("Version 1.0.0",
                       style: Theme.of(context).textTheme.bodyText2),
                   const SizedBox(height: 16.0),
-                  Text("Credits and Acknowledgements:",
-                      style: Theme.of(context).textTheme.subtitle1),
-                  const SizedBox(height: 4.0),
-                  const Text("This app uses the Flutterframeworkandthe")
+                  Text("Copyright © 2023 Omid Nejadabbasi.",
+                      style: Theme.of(context).textTheme.bodyText2),
+                  const SizedBox(height: 16.0),
                 ])));
   }
 }

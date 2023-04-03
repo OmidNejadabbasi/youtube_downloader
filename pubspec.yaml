@@ -50,6 +50,7 @@ dependencies:
   badges: ^2.0.3
   shared_preferences:
   connectivity:
+  url_launcher:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

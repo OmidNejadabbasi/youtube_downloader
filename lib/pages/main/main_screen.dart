@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badge;
 import 'package:fetchme/fetchme.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
@@ -540,7 +540,7 @@ class _MainScreenState extends State<MainScreen> {
                   BottomNavigationBarItem(
                     icon: StreamBuilder(
                       stream: _bloc.queueCount,
-                      builder: (context, snapshot) => Badge(
+                      builder: (context, snapshot) => badge.Badge(
                         child: const Icon(Icons.done),
                         badgeContent: Text(snapshot.data.toString(),
                             style: Styles.labelTextStyle),
@@ -552,7 +552,7 @@ class _MainScreenState extends State<MainScreen> {
                   BottomNavigationBarItem(
                     icon: StreamBuilder(
                       stream: _bloc.completedCount,
-                      builder: (context, snapshot) => Badge(
+                      builder: (context, snapshot) => badge.Badge(
                         child: const Icon(Icons.done),
                         badgeContent: Text(snapshot.data.toString(),
                             style: Styles.labelTextStyle),
